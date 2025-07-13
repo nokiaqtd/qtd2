@@ -8,18 +8,23 @@
         //let url = "https://script.google.com/macros/s/AKfycbwyS3ETZFJf2hMZhi7LhmhQ4etDvgEOjgeIy_RvAH71q6Ub1YI8i7nzX5lIbeAdPs3c0g/exec";
         // deployment remarks: 1.26 add mailing list CJ Kalimantan
         //let url = "https://script.google.com/macros/s/AKfycbz-ZYHuUXE0_bz4ifwpsTZUk7pp3lfGZItL5D4oYhujSSX7TdFFtkyR8jNoaTNXN8x_eQ/exec";
-        // deployment remarks: 1.27 add mailing list SS        
+        // deployment remarks: 1.27 add mailing list SS
         //let url = "https://script.google.com/macros/s/AKfycbz_he-H_wSOYyP0a_qv_PNc2XOPvN0MCrPZIxh0YlfnhmZUlzz0mmoCb_t4ah1sehnJ0w/exec";
-        // deployment remarks: 1 pindah akun gdrive
-        let url = "https://script.google.com/macros/s/AKfycbwvH83ZiJdCrn6QakjM18NSHsrs5zypx1f0gBhBH0LvXrtEywKhZEDavXknaG5l1bUglQ/exec";
-        let folder_sumatra = '1jPiwHN4ZcLDdgutI3IRpsgrge4a-PF9u';
-        let folder_java = '1cN52rkC9YMIOrvSkN0EZ5YHONrDI2opG';
-        let folder_kalimantan = '1hx2UpkR1piDIaZZMLFNNDGf9PF0v5EoP';
-        let folder_all = '106uhgLflmItsmXJytyB-XdRbQTc2wing';
+		// deployment remarks: 1.28 efficient search
+        //let url = "https://script.google.com/macros/s/AKfycbw15mK5uxYETdRb3iKUUULz_VDXtJCmCUvEdX36KYH5f69WIotk6ZVx039kmxXz9KY1OQ/exec";
+		let url = "https://script.google.com/macros/s/AKfycbxUbORlCPRCtAxec2UAyusvSJ3mWyiu-HmFHOP2oToVGy4lyy-lvePBecvUxM5Frcwz-A/exec";
+		let lastqtdaz = 'https://script.google.com/macros/s/AKfycbyfRmvu91ZDij5ZY-s2MOQtGaNC7olGReZb8UxsPAlHb4Tn5q3Y_ZpW50vXnbmrppKehQ/exec';
+		
+        let folder_sumatra = '18OLcLDIpnI7ErgJHgaS1DztCSXqt2L0b';
+        let folder_java = '1abv_c9lvKfOh_dE6GQAXHXqKj6GAOzUz';
+        let folder_kalimantan = '1lP84IOUvlY1VaxiYZM6S_3-HuUx-NHZW';
+        let folder_all = '1CvPDze6Ye7gjrNnHxtY2ScZiwSsrZsGy';
         let startTime = performance.now();
         let return_url = "done;21SPT0169_240405_mt3.jpeg;https://drive.google.com/thumbnail?id=1QZhvAUKfURfq9Oe8HHahr_MaeqjpsEpe&sz=w1000;21SPT0169_240405_et3.jpeg;https://drive.google.com/thumbnail?id=16naMjJRtZW0Sgarplb305GLEhZEjawEv&sz=w1000;21SPT0169_240405_az3v.jpeg;https://drive.google.com/thumbnail?id=1umW6CZlqa3iQ2PdJNVGIw-qnPkcpqgzp&sz=w1000;21SPT0169_240405_az3.jpeg;https://drive.google.com/thumbnail?id=1Q2Weg85BUxVmO1sXuZaHVzJAh5cyDfHQ&sz=w1000;21SPT0169_240405_et2.jpeg;https://drive.google.com/thumbnail?id=11Dsc0bM-PGNdyvAws5Y0SSD_zpLhvv4c&sz=w1000;21SPT0169_240405_mt2.jpeg;https://drive.google.com/thumbnail?id=12AHwrBXItzYTz1YNDI8cOljSIXs5hfOr&sz=w1000;21SPT0169_240405_az2v.jpeg;https://drive.google.com/thumbnail?id=1e6zxIa4hl6E8q7UmNCO-t4ASj_rOk7pY&sz=w1000;21SPT0169_240405_az2.jpeg;https://drive.google.com/thumbnail?id=1GiX7PCcfTwf65fMYG8yCx3Hx4sHgPkZk&sz=w1000;21SPT0169_240405_et1.jpeg;https://drive.google.com/thumbnail?id=1Z2v8Yk8Xa6XtVjd8T1k0ycl2l0i9u7VN&sz=w1000;21SPT0169_240405_mt1.jpeg;https://drive.google.com/thumbnail?id=1wPvNj2-YJzBuQC2PggKYv7yaZ1s-dg-C&sz=w1000;21SPT0169_240405_az1v.jpeg;https://drive.google.com/thumbnail?id=15nfzF7gUEy7w_XWoW0qV2_vyGBzOBj-v&sz=w1000;21SPT0169_240405_az1.jpeg;https://drive.google.com/thumbnail?id=1NgEgRnORpUiUc2yxJdq2tEWP0_CQ-HNl&sz=w1000;21SPT0169_240405_t4.jpeg;https://drive.google.com/thumbnail?id=1MHh1Q_W_aFo-2spLRFZ5SKFPV10_Pi1k&sz=w1000;21SPT0169_240405_t3.jpeg;https://drive.google.com/thumbnail?id=1o5Wk_bm9Xu4CyYu5kw5V2glXCOqfk4Jm&sz=w1000;21SPT0169_240405_t2.jpeg;https://drive.google.com/thumbnail?id=1a4mnMJaPNYGR9JsHqr16-tQ_4WX-Ogtl&sz=w1000;21SPT0169_240405_t1.jpeg;https://drive.google.com/thumbnail?id=1mpxWXIARLaMYWvYAF3T-Xz8xfHIXKc6U&sz=w1000";
         let resultArray = [];
         let indexArray = 0;
+		let mixed = [];
+		let updatedMixed = [];
 
     </script>
     <meta charset="UTF-8">
@@ -590,6 +595,8 @@
     </div>
 
     <script>
+		let currentGalleryIndex = 0; // to remember the last opened index
+		
         var spanElement = document.getElementById("nokia");
         spanElement.addEventListener("click", function () {
             var url = "https://docs.google.com/spreadsheets/d/1H6q36D-_1c5_mXFpqhFtWQApCUTtigKLEFP3PgRwty8";
@@ -625,6 +632,8 @@
 
         function searchSite() {
             // Your search functionality here
+			document.querySelectorAll('.iframe-container')[1].style.display = "none";
+			document.getElementById("upperdiv").style.height = "100%";			
             startTime = performance.now();
             let intervalID = setInterval(updateDuration, 100);
             let isSending = false;
@@ -743,6 +752,7 @@
                         resultArray.push(siteArray);
                         console.log("resultArray:", resultArray);
                         console.log("siteArray:", siteArray);
+						
                         // searchResult.innerHTML += '<br><span style="font-size:14px;cursor:pointer" onclick="openNav(\'' + json + '\')">' + resArr[0].site + '</span>';
                         searchResult.innerHTML += '<br><span style="font-size:14px;cursor:pointer" onclick="openNav(' + indexArray + ')">' + siteArray[0].site + '</span>';
                         indexArray = indexArray + 1;
@@ -756,9 +766,65 @@
                         //     console.log("URL:", obj.url);
                         // }
                     }
-                    if (indexArray > 0) {
-                        openNav(0);
-                    }
+										
+					if (indexArray > 0) {
+						(async () => {
+							// global mixed
+							mixed = [];
+
+							for (const group of resultArray) {
+								const siteid = group[0].site.split('_')[0];
+								const azItems = group.filter(item => item.name.includes("az"));
+								if (azItems.length > 0) {
+									mixed.push([siteid, ...azItems.flatMap(i => [i.name, i.url])]);
+								}
+							}
+
+							const uniqueSiteids = [...new Set(mixed.map(m => m[0]))];
+
+							const siteidToAzValues = Object.fromEntries(await Promise.all(
+								uniqueSiteids.map(async siteid => {
+									const res = await fetch(lastqtdaz, {
+										method: 'POST',
+										headers: { 'Content-Type': 'text/plain' },
+										body: JSON.stringify({ siteid })
+									});
+									const json = await res.json();
+									return [siteid, json];
+								})
+							));
+							
+							console.log("siteidToAzValues:", siteidToAzValues);
+							
+							  updatedMixed = mixed.map(row => {
+							  const siteid = row[0];
+							  const azValues = siteidToAzValues[siteid] || {};
+
+							  const longitude = azValues.longitude || '';
+							  const latitude = azValues.latitude || '';
+
+							  const updatedRow = [siteid, longitude, latitude];
+
+							  for (let i = 1; i < row.length; i += 2) {
+								const name = row[i];
+								const url = row[i + 1];
+
+								const baseAz = Object.keys(azValues).find(
+								  azKey => name.startsWith(azKey) && azKey !== 'longitude' && azKey !== 'latitude'
+								);
+								const value = baseAz ? `=${azValues[baseAz]}` : '';
+								updatedRow.push(name + value, url);
+							  }
+
+							  return updatedRow;
+							});							
+
+							console.log("updatedMixed:", updatedMixed);
+				
+							openNav(0);
+						})(); // <--- this is an immediately-invoked async function expression (IIFE)
+					}
+					
                 }
             })
                 .catch(error => {
@@ -798,17 +864,20 @@
             slides[slideIndex - 1].style.display = "block";
             dots[slideIndex - 1].className += " active";
             captionText.innerHTML = dots[slideIndex - 1].alt;
-            if (dots[slideIndex - 1].alt.charAt(0) === 'b') {
-                captionText1.innerHTML = "AFTER";
-            } else {
-                captionText1.innerHTML = "BEFORE";
-            }
-        }
+			if (!document.getElementById("downloadKMLBtn")) {			
+				if (dots[slideIndex - 1].alt.charAt(0) === 'b') {
+					captionText1.innerHTML = "AFTER";
+				} else {
+					captionText1.innerHTML = "BEFORE";
+				}
+			}
+		}
 
 
 
         function openNav(idx) {
             // let resArr = JSON.parse(jsonString);
+			currentGalleryIndex = idx;
             resArr = resultArray[idx];
             console.log('openNav resArr:' + resArr);
             createGalery();
@@ -823,10 +892,10 @@
 
         }
 
-        function createGalery() {
-            // Template for overlay content
-            let template = `
 
+function createGalery() {
+    // 1. Render slideshow exactly as before
+    let template = `
 <div class="container">
 {slides}
 <a class="prev" onclick="plusSlides(-1)">❮</a>
@@ -836,49 +905,149 @@
     <span id="caption1"></span><span id="caption"></span><h2 style="text-align:center">{site}</h2>
 </div>
 <div class="container">
-<div class="row">
-{thumbnails}
-</div>
+  <div class="row">
+    {thumbnails}
+  </div>
 </div>
 `;
 
-            // Initialize empty strings to store slides and thumbnails HTML
-            let slidesHTML = "";
-            let thumbnailsHTML = "";
+    let slidesHTML = "";
+    let thumbnailsHTML = "";
+    let placemarkName = resArr[0].site;            // e.g. "20SAG0132_2025709"
+    let rawSiteid     = placemarkName.split("_")[0]; // e.g. "20SAG0132"
 
-            // Iterate through each object in resultArray
-            resArr.forEach((obj, index) => {
-                // Generate HTML for each slide
-                let slideHTML = `
+    resArr.forEach((obj, index) => {
+        slidesHTML += `
 <div class="mySlides">
-<div class="numbertext">${index + 1} / ${resArr.length}</div>
-<img src="${obj.url}">
-</div>
-`;
-                slidesHTML += slideHTML;
-
-                // Generate HTML for each thumbnail
-                let thumbnailHTML = `
+  <div class="numbertext">${index + 1} / ${resArr.length}</div>
+  <img src="${obj.url}">
+</div>`;
+        thumbnailsHTML += `
 <div class="column">
-<img class="demo cursor" src="${obj.url}" style="width:100%" onclick="currentSlide(${index + 1})" alt="${obj.name}">
-<div class="tooltip">${obj.name}</div>
+  <img class="demo cursor" src="${obj.url}" style="width:100%" onclick="currentSlide(${index + 1})" alt="${obj.name}">
+  <div class="tooltip">${obj.name}</div>
+</div>`;
+    });
+
+    document.querySelector(".overlay-content").innerHTML = template
+      .replace("{site}", placemarkName)
+      .replace("{slides}", slidesHTML)
+      .replace("{thumbnails}", thumbnailsHTML);
+
+    // 2. Lookup in updatedMixed for coordinates & az entries
+    const row = updatedMixed.find(r => r[0] === rawSiteid) || [];
+    const [ , longitude = "", latitude = "", ...azPairs ] = row;
+
+    // Build kmlImages from azPairs (name, url alternating)
+    const kmlImages = [];
+    for (let i = 0; i < azPairs.length; i += 2) {
+      const name = azPairs[i];
+      const url  = azPairs[i + 1];
+      if (name && url) kmlImages.push({ name, url });
+    }
+
+    // 3. Inject & style the KML button
+    const caption1 = document.getElementById("caption1");
+    caption1.innerHTML = `
+<button id="downloadKMLBtn" style="
+  padding: 8px 16px;
+  margin-top: 8px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+">
+  KML ${rawSiteid}
+</button>`;
+
+    const btn = document.getElementById('downloadKMLBtn');
+    btn.addEventListener("mouseenter", () => btn.style.backgroundColor = "#004c99");
+    btn.addEventListener("mouseleave", () => btn.style.backgroundColor = "#0066cc");
+    btn.addEventListener("mousedown", () => btn.style.backgroundColor = "#003d80");
+    btn.addEventListener("mouseup", () => btn.style.backgroundColor = "#004c99");
+
+    // 4. Generate KML on click
+    btn.addEventListener('click', function () {
+        const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Placemark>
+    <name>${rawSiteid}</name>
+    <Style>
+      <IconStyle>
+		<color>ff55ffff</color>
+        <scale>1.0</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/donut.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+		<color>ffffff7f</color>
+        <scale>0.7</scale>
+      </LabelStyle>
+    </Style>	
+    <description><![CDATA[
+<style>
+.tab-container { width:800px; font-family:Arial,sans-serif; text-align:center; }
+.tab-container input { display:none; }
+.tab-links { background:white; padding:5px; text-align:center; }
+.tab-container label {
+  display:inline-block; padding:0 8px; color:#0066cc;
+  text-decoration:underline; cursor:pointer; font-size:14px;
+}
+.tab-container label:hover { text-decoration:none; }
+.tab-container .tab-content {
+  display:none; border-top:1px solid #ccc; margin:10px 0;
+}
+.tab-container input:checked + label { font-weight:bold; text-decoration:none; }
+${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
+  display:block;
+}
+.tab-container img { display:block; margin:0 auto; width:100%; height:auto; }
+</style>
+
+<div class="tab-container">
+  ${kmlImages.map((_, i) =>
+    `<input type="radio" id="tab${i+1}" name="tabs" ${i===0?'checked':''}>`
+  ).join("\n")}
+  <div class="tab-links">
+    ${kmlImages.map((img, i) =>
+      `<label for="tab${i+1}">${img.name}</label>${i<kmlImages.length-1?" | ":""}`
+    ).join("\n")}
+  </div>
+  ${kmlImages.map((img, i) => `
+  <div id="content${i+1}" class="tab-content">
+    <img src="${img.url}">
+    <div class="tab-links">
+      ${kmlImages.map((inner, j) =>
+        `<label for="tab${j+1}">${inner.name}</label>${j<kmlImages.length-1?" | ":""}`
+      ).join("\n")}
+    </div>
+  </div>`).join("\n")}
 </div>
-`;
-                thumbnailsHTML += thumbnailHTML;
-            });
+    ]]></description>
+    <Point>
+      <coordinates>${longitude},${latitude},0</coordinates>
+    </Point>
+  </Placemark>
+</kml>`;
 
-            // Replace placeholders in the template with actual HTML
-            let overlayContentHTML = template
-                .replace("{site}", resArr[0].site)
-                .replace("{slides}", slidesHTML)
-                .replace("{thumbnails}", thumbnailsHTML);
+        const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+        const url = URL.createObjectURL(blob);
 
-            // Get the overlay-content element
-            let overlayContent = document.querySelector(".overlay-content");
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${placemarkName}.kml`;
+        link.click();
+        URL.revokeObjectURL(url);
+    });
+}
+		
 
-            // Set the generated HTML as the content of overlay-content
-            overlayContent.innerHTML = overlayContentHTML;
-        }
+
+		
         function closeNav() {
             document.getElementById("myNav").style.width = "0%";
             lowerdiv.style.transition = "opacity 0.5s 0.5s";
@@ -1378,6 +1547,16 @@
         } else {
             console.log('No value found for "siteid" query parameter');
         }
+		document.addEventListener("keydown", function (e) {
+			if (e.ctrlKey && e.key === 'q') {
+				const myNav = document.getElementById("myNav");
+				if (myNav.style.width === "100%") {
+					closeNav();
+				} else if ((myNav.style.width === "0%" || myNav.style.width === "") && resultArray.length > 0) {
+					openNav(currentGalleryIndex);
+				}
+			}
+		});		
     </script>
 </body>
 
