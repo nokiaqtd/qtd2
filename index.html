@@ -944,7 +944,10 @@ function createGalery() {
     for (let i = 0; i < azPairs.length; i += 2) {
       const name = azPairs[i];
       const url  = azPairs[i + 1];
-      if (name && url) kmlImages.push({ name, url });
+	  if (name && url && !/w/i.test(name)) {
+		kmlImages.push({ name, url });
+	  }
+  
     }
 
 	// Step 2b: Concatenate only names without 'v' or 'w' (case-insensitive)
