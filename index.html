@@ -1791,39 +1791,35 @@ ${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
 
 
 
-	
-	/* main: check cookie, show dialog if needed, then inject JSONP accordingly */
+		
 	(function initAreaChoice() {
-	  const cookie = getCookie('qtd_area');
+	  var cookie = getCookie('qtd_area');
 	  if (cookie) {
-	    // cookie format: comma separated area codes like "KAL" or "CJ,EJ"
-	    const areas = cookie.split(',');
-	    if (areas.length === 1 && areas[0] !== 'ALL') {
-	      // single area -> use that sheet
-	      const sheetName = AREA_SHEETS[areas[0]] || areas[0];
+	    var areas = cookie.split(',').filter(Boolean);
+	    var first = areas[0];
+	    if (first && first !== 'ALL') {
+	      var sheetName = AREA_SHEETS[first] || first;
 	      injectLastcellJSONP(sheetName);
 	    } else {
-	      // multiple areas or ALL -> default behaviour
 	      injectLastcellJSONP(null);
 	    }
 	    return;
 	  }
 	
 	  // no cookie: ask user
-	  showAreaDialog(selectedAreas => {
-	    // save cookie (persist)
+	  showAreaDialog(function(selectedAreas) {
+	    // persist
 	    setCookie('qtd_area', selectedAreas.join(','));
-	    if (selectedAreas.length === 1 && selectedAreas[0] !== 'ALL') {
-	      const sheetName = AREA_SHEETS[selectedAreas[0]] || selectedAreas[0];
-	      injectLastcellJSONP(sheetName);
+	    var sel = (selectedAreas || []).filter(Boolean);
+	    var firstSel = sel[0];
+	    if (firstSel && firstSel !== 'ALL') {
+	      var sheet = AREA_SHEETS[firstSel] || firstSel;
+	      injectLastcellJSONP(sheet);
 	    } else {
 	      injectLastcellJSONP(null);
 	    }
 	  });
-	})();
-
-
-
+	})();	
       
     </script>
 </body>
