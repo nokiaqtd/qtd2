@@ -1659,57 +1659,56 @@ ${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
 	/* Show a small modal dialog to let user pick area(s). Multiple allowed.
 	   If exactly one area chosen and not ALL, we request that sheet's last-3 rows.
 	   Otherwise fallback to default (inject without sheet param). */
-	
-	function showAreaDialog(onSave) {
-	  // avoid duplicate styles
-	  if (!document.getElementById('qtd-area-modal-styles')) {
-		var s = document.createElement('style');
-		s.id = 'qtd-area-modal-styles';
-		s.textContent =
-		  ':root{--brand:hsl(219,100%,50%);}#qtd-area-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2147483647;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);}#qtd-area-card{min-width:320px;max-width:92%;background:#fff;border-radius:12px;padding:20px;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;color:#0b1220;box-shadow:0 12px 30px rgba(6,18,40,0.18);transform:translateY(6px);transition:transform .18s ease,opacity .18s ease;}#qtd-area-card:hover{transform:translateY(0);}#qtd-area-title{font-weight:700;margin:0 0 10px 0;font-size:15px;}#qtd-area-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;}#qtd-area-grid label{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(11,18,32,0.06);cursor:pointer;transition:box-shadow .14s ease,transform .14s ease;background:#fff;}#qtd-area-grid label:hover{box-shadow:0 6px 18px rgba(11,18,32,0.08);transform:translateY(-3px);}#qtd-area-grid input{width:16px;height:16px;border-radius:4px;accent-color:var(--brand);}#qtd-area-actions{text-align:right;}#qtd-area-actions button{margin-left:8px;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600;transition:transform .12s ease,opacity .12s ease;}#qtd-area-cancel{background:transparent;color:#334155;border:1px solid rgba(51,65,85,0.08);}#qtd-area-cancel:hover{opacity:.92;transform:translateY(-2px);}#qtd-area-save{background:var(--brand);color:#fff;box-shadow:0 8px 20px rgba(33,100,255,0.12);}#qtd-area-save:hover{filter:brightness(.96);transform:translateY(-2px);}#qtd-area-note{font-size:12px;color:#556176;margin-top:10px;}@media (prefers-reduced-motion:reduce){#qtd-area-card,#qtd-area-grid label,#qtd-area-actions button{transition:none;}}';
-		document.head.appendChild(s);
-	  }
 
-	  // build overlay + card
+
+	function showAreaDialog(onSave) {
+	  if (!document.getElementById('qtd-area-modal-styles')) {
+	    var s = document.createElement('style');
+	    s.id = 'qtd-area-modal-styles';
+	    s.textContent =
+	      ':root{--brand:hsl(219,100%,50%);}#qtd-area-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2147483647;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);}#qtd-area-card{width:360px;max-width:92%;background:#fff;border-radius:12px;padding:18px 18px 14px;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;color:#0b1220;box-shadow:0 8px 20px rgba(10,20,40,0.08);transition:opacity .18s ease,transform .18s ease;transform:translateY(0);}#qtd-area-title{font-weight:700;margin:0 0 12px 0;font-size:15px;}#qtd-area-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}#qtd-area-grid label{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid rgba(11,18,32,0.06);cursor:pointer;transition:box-shadow .14s ease,transform .14s ease;background:#fff;}#qtd-area-grid label:hover{box-shadow:0 6px 18px rgba(11,18,32,0.06);transform:translateY(-2px);}#qtd-area-grid input{width:18px;height:18px;accent-color:var(--brand);}#qtd-area-actions{display:flex;justify-content:flex-end;gap:10px;}#qtd-area-actions button{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600;transition:transform .12s ease,opacity .12s ease;}#qtd-area-cancel{background:transparent;color:#334155;border:1px solid rgba(51,65,85,0.08);}#qtd-area-save{background:var(--brand);color:#fff;box-shadow:0 6px 14px rgba(33,100,255,0.10);}#qtd-area-note{font-size:12px;color:#556176;margin-top:10px;}@media (prefers-reduced-motion:reduce){#qtd-area-card,#qtd-area-grid label,#qtd-area-actions button{transition:none;}}';
+	    document.head.appendChild(s);
+	  }
+	
 	  var overlay = document.createElement('div');
 	  overlay.id = 'qtd-area-overlay';
 	  overlay.setAttribute('role', 'dialog');
 	  overlay.setAttribute('aria-modal', 'true');
-
+	
 	  var card = document.createElement('div');
 	  card.id = 'qtd-area-card';
-
+	
 	  var title = document.createElement('h3');
 	  title.id = 'qtd-area-title';
-	  title.textContent = 'Select area (you can choose >1). Choose "All area" to use default:';
-
+	  title.textContent = 'Select Area';
+	
 	  var grid = document.createElement('div');
 	  grid.id = 'qtd-area-grid';
-
+	
 	  var areas = [
-		{ code: 'KAL', name: 'Kalimantan' },
-		{ code: 'CJ', name: 'Central Java' },
-		{ code: 'EJ', name: 'East Java' },
-		{ code: 'SS', name: 'South Sumatra' },
-		{ code: 'NS', name: 'North Sumatra' },
-		{ code: 'ALL', name: 'All area' }
+	    { code: 'KAL', name: 'Kalimantan' },
+	    { code: 'CJ', name: 'Central Java' },
+	    { code: 'EJ', name: 'East Java' },
+	    { code: 'SS', name: 'South Sumatra' },
+	    { code: 'NS', name: 'North Sumatra' },
+	    { code: 'ALL', name: 'All area' }
 	  ];
-
+	
 	  for (var i = 0; i < areas.length; i++) {
-		var a = areas[i];
-		var lbl = document.createElement('label');
-		lbl.setAttribute('data-area', a.code);
-		var cb = document.createElement('input');
-		cb.type = 'checkbox';
-		cb.setAttribute('data-area', a.code);
-		cb.setAttribute('aria-label', a.name);
-		var span = document.createElement('span');
-		span.textContent = a.name;
-		lbl.appendChild(cb);
-		lbl.appendChild(span);
-		grid.appendChild(lbl);
+	    var a = areas[i];
+	    var lbl = document.createElement('label');
+	    lbl.setAttribute('data-area', a.code);
+	    var cb = document.createElement('input');
+	    cb.type = 'checkbox';
+	    cb.setAttribute('data-area', a.code);
+	    cb.setAttribute('aria-label', a.name);
+	    var span = document.createElement('span');
+	    span.textContent = a.name;
+	    lbl.appendChild(cb);
+	    lbl.appendChild(span);
+	    grid.appendChild(lbl);
 	  }
-
+	
 	  var actions = document.createElement('div');
 	  actions.id = 'qtd-area-actions';
 	  var cancel = document.createElement('button');
@@ -1720,80 +1719,76 @@ ${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
 	  save.id = 'qtd-area-save';
 	  save.type = 'button';
 	  save.textContent = 'Save & Continue';
-
+	
 	  actions.appendChild(cancel);
 	  actions.appendChild(save);
-
+	
 	  var note = document.createElement('div');
 	  note.id = 'qtd-area-note';
-	  note.innerHTML = 'You can change area later (clear cookie in console with <code>deleteCookie(\"qtd_area\")</code>)';
-
+	  note.innerHTML = 'You can reselect later by clearing the cookie: <code>deleteCookie(\"qtd_area\")</code>';
+	
 	  card.appendChild(title);
 	  card.appendChild(grid);
 	  card.appendChild(actions);
 	  card.appendChild(note);
 	  overlay.appendChild(card);
 	  document.body.appendChild(overlay);
-
-	  // lock background scroll
+	
 	  var prevOverflow = document.body.style.overflow;
 	  document.body.style.overflow = 'hidden';
-
-	  // focus first checkbox
+	
 	  var firstCb = grid.querySelector('input[type=checkbox]');
 	  if (firstCb) { firstCb.focus(); }
-
-	  // helpers
-	  function closeAndCleanup(resultArray) {
-		try { onSave(resultArray); } catch (e) { /* ignore user handler errors */ }
-		if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-		document.body.style.overflow = prevOverflow || '';
-		document.removeEventListener('keydown', keyHandler, true);
-	  }
-
+	
 	  function collectSelected() {
-		var checks = grid.querySelectorAll('input[type=checkbox]');
-		var sel = [];
-		for (var j = 0; j < checks.length; j++) {
-		  if (checks[j].checked) sel.push(checks[j].getAttribute('data-area'));
-		}
-		if (sel.indexOf('ALL') !== -1 || sel.length === 0) return ['ALL'];
-		return sel;
+	    var checks = grid.querySelectorAll('input[type=checkbox]');
+	    var sel = [];
+	    for (var j = 0; j < checks.length; j++) {
+	      if (checks[j].checked) sel.push(checks[j].getAttribute('data-area'));
+	    }
+	    if (sel.indexOf('ALL') !== -1 || sel.length === 0) return ['ALL'];
+	    return sel;
 	  }
-
-	  // events
+	
+	  function closeAndCleanup(resultArray) {
+	    try { onSave(resultArray); } catch (e) { /* ignore */ }
+	    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+	    document.body.style.overflow = prevOverflow || '';
+	    document.removeEventListener('keydown', keyHandler, true);
+	    // small delay so any immediate handlers (inject JSONP / setCookie) run, then reload
+	    setTimeout(function () { try { location.reload(); } catch (e) { /* ignore */ } }, 220);
+	  }
+	
 	  save.addEventListener('click', function () { closeAndCleanup(collectSelected()); });
 	  cancel.addEventListener('click', function () { closeAndCleanup(['ALL']); });
-
-	  // clicking overlay outside card cancels
+	
 	  overlay.addEventListener('click', function (ev) {
-		if (ev.target === overlay) closeAndCleanup(['ALL']);
+	    if (ev.target === overlay) closeAndCleanup(['ALL']);
 	  });
-
-	  // if ALL is checked, uncheck others; if other is checked, uncheck ALL
+	
 	  grid.addEventListener('change', function (ev) {
-		var target = ev.target;
-		if (!target || target.type !== 'checkbox') return;
-		if (target.getAttribute('data-area') === 'ALL' && target.checked) {
-		  var all = grid.querySelectorAll('input[type=checkbox]');
-		  for (var k = 0; k < all.length; k++) {
-			if (all[k].getAttribute('data-area') !== 'ALL') all[k].checked = false;
-		  }
-		} else if (target.checked) {
-		  var allbox = grid.querySelector('input[data-area="ALL"]');
-		  if (allbox) allbox.checked = false;
-		}
+	    var target = ev.target;
+	    if (!target || target.type !== 'checkbox') return;
+	    if (target.getAttribute('data-area') === 'ALL' && target.checked) {
+	      var all = grid.querySelectorAll('input[type=checkbox]');
+	      for (var k = 0; k < all.length; k++) {
+	        if (all[k].getAttribute('data-area') !== 'ALL') all[k].checked = false;
+	      }
+	    } else if (target.checked) {
+	      var allbox = grid.querySelector('input[data-area=\"ALL\"]');
+	      if (allbox) allbox.checked = false;
+	    }
 	  });
-
+	
 	  function keyHandler(e) {
-		// ESC -> cancel; Enter when focused on button -> let it handle
-		if (e.key === 'Escape' || e.keyCode === 27) {
-		  e.preventDefault();
-		  closeAndCleanup(['ALL']);
-		}
+	    if (e.key === 'Escape' || e.keyCode === 27) {
+	      e.preventDefault();
+	      closeAndCleanup(['ALL']);
+	    }
 	  }
 	  document.addEventListener('keydown', keyHandler, true);
 	}
+
 
 
 	
