@@ -2,29 +2,30 @@
 <html lang="en">
 
 <head>
-	<title>QTD3</title>
-	  <script>
-	    // SVG-only favicon: white "N" on hsl(219 100% 50%) background
-	    (function(){
-	      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="N">
-	        <rect width="100%" height="100%" fill="hsl(219 100% 50%)"/>
-	        <!-- left vertical bar -->
-	        <rect x="8" y="8" width="10" height="48" fill="#fff"/>
-	        <!-- diagonal stroke (slanted middle) -->
-	        <polygon points="18,8 30,8 46,56 34,56" fill="#fff"/>
-	        <!-- right vertical bar -->
-	        <rect x="46" y="8" width="10" height="48" fill="#fff"/>
-	      </svg>`; 
+
 	
-	      const urlx = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
-	      document.querySelectorAll('link[rel~="icon"]').forEach(n => n.remove());
-	      const link = document.createElement('link');
-	      link.rel = 'icon';
-	      link.type = 'image/svg+xml';
-	      link.href = urlx;
-	      document.head.appendChild(link);
-	    })();
-	  </script>
+	<meta charset="utf-8">
+	<title>Redirecting…</title>
+	
+	<!-- HTML meta fallback (works if JS disabled) -->
+	<meta http-equiv="refresh" content="0;url=https://nokiaqtd.github.io/qtd3">
+	
+	<!-- Preferred JS redirect: replace() avoids creating a history entry -->
+	<script>
+	  // fastest client redirect — replace() so Back button doesn't go here
+	  window.location.replace("https://nokiaqtd.github.io/qtd3");
+	  // If you prefer the user be able to go Back, use:
+	  // window.location.href = "https://example.com/newpage";
+	</script>
+	<noscript>
+	  <p>If you are not redirected automatically, <a href="https://nokiaqtd.github.io/qtd3">click here</a>.</p>
+	</noscript>
+
+
+
+
+
+
 	
     <script>
         // This line declares a variable called "url" and assigns it a value of "Api_Endpoint_Url"
@@ -36,13 +37,7 @@
         //let url = "https://script.google.com/macros/s/AKfycbz_he-H_wSOYyP0a_qv_PNc2XOPvN0MCrPZIxh0YlfnhmZUlzz0mmoCb_t4ah1sehnJ0w/exec";
 		// deployment remarks: 1.28 efficient search
         //let url = "https://script.google.com/macros/s/AKfycbw15mK5uxYETdRb3iKUUULz_VDXtJCmCUvEdX36KYH5f69WIotk6ZVx039kmxXz9KY1OQ/exec";
-		//let url = "https://script.google.com/macros/s/AKfycbxUbORlCPRCtAxec2UAyusvSJ3mWyiu-HmFHOP2oToVGy4lyy-lvePBecvUxM5Frcwz-A/exec";
-		// deployment remarks: 3.1 new script
-		// let url ="https://script.google.com/macros/s/AKfycbzHQ6Xe2ZlWkkxFYBos3YgrDClm7tBlvjCRyc6EqkiZ26uV2FTviiILofNtu7CxZUZN/exec";
-		//let url ="https://script.google.com/macros/s/AKfycbyReu2avCWcEQLkZbgCtS6KR3q_ebP96fbIDaMWLZCZV_iddxmj7nx-zbxzQOdTLVhc/exec";
-		let url="https://script.google.com/macros/s/AKfycbw8WgLxVKoq7bFaNKOiWvBI-2crahSkR3FcUThOa7B4Oe5Z4Km4scoUAM0iR3StywBK/exec";
-		
-		let lastqtdaz = url;
+		let url = "https://script.google.com/macros/s/AKfycbxUbORlCPRCtAxec2UAyusvSJ3mWyiu-HmFHOP2oToVGy4lyy-lvePBecvUxM5Frcwz-A/exec";
 		
         let folder_sumatra = '18OLcLDIpnI7ErgJHgaS1DztCSXqt2L0b';
         let folder_java = '1abv_c9lvKfOh_dE6GQAXHXqKj6GAOzUz';
@@ -52,13 +47,11 @@
         let return_url = "done;21SPT0169_240405_mt3.jpeg;https://drive.google.com/thumbnail?id=1QZhvAUKfURfq9Oe8HHahr_MaeqjpsEpe&sz=w1000;21SPT0169_240405_et3.jpeg;https://drive.google.com/thumbnail?id=16naMjJRtZW0Sgarplb305GLEhZEjawEv&sz=w1000;21SPT0169_240405_az3v.jpeg;https://drive.google.com/thumbnail?id=1umW6CZlqa3iQ2PdJNVGIw-qnPkcpqgzp&sz=w1000;21SPT0169_240405_az3.jpeg;https://drive.google.com/thumbnail?id=1Q2Weg85BUxVmO1sXuZaHVzJAh5cyDfHQ&sz=w1000;21SPT0169_240405_et2.jpeg;https://drive.google.com/thumbnail?id=11Dsc0bM-PGNdyvAws5Y0SSD_zpLhvv4c&sz=w1000;21SPT0169_240405_mt2.jpeg;https://drive.google.com/thumbnail?id=12AHwrBXItzYTz1YNDI8cOljSIXs5hfOr&sz=w1000;21SPT0169_240405_az2v.jpeg;https://drive.google.com/thumbnail?id=1e6zxIa4hl6E8q7UmNCO-t4ASj_rOk7pY&sz=w1000;21SPT0169_240405_az2.jpeg;https://drive.google.com/thumbnail?id=1GiX7PCcfTwf65fMYG8yCx3Hx4sHgPkZk&sz=w1000;21SPT0169_240405_et1.jpeg;https://drive.google.com/thumbnail?id=1Z2v8Yk8Xa6XtVjd8T1k0ycl2l0i9u7VN&sz=w1000;21SPT0169_240405_mt1.jpeg;https://drive.google.com/thumbnail?id=1wPvNj2-YJzBuQC2PggKYv7yaZ1s-dg-C&sz=w1000;21SPT0169_240405_az1v.jpeg;https://drive.google.com/thumbnail?id=15nfzF7gUEy7w_XWoW0qV2_vyGBzOBj-v&sz=w1000;21SPT0169_240405_az1.jpeg;https://drive.google.com/thumbnail?id=1NgEgRnORpUiUc2yxJdq2tEWP0_CQ-HNl&sz=w1000;21SPT0169_240405_t4.jpeg;https://drive.google.com/thumbnail?id=1MHh1Q_W_aFo-2spLRFZ5SKFPV10_Pi1k&sz=w1000;21SPT0169_240405_t3.jpeg;https://drive.google.com/thumbnail?id=1o5Wk_bm9Xu4CyYu5kw5V2glXCOqfk4Jm&sz=w1000;21SPT0169_240405_t2.jpeg;https://drive.google.com/thumbnail?id=1a4mnMJaPNYGR9JsHqr16-tQ_4WX-Ogtl&sz=w1000;21SPT0169_240405_t1.jpeg;https://drive.google.com/thumbnail?id=1mpxWXIARLaMYWvYAF3T-Xz8xfHIXKc6U&sz=w1000";
         let resultArray = [];
         let indexArray = 0;
-		let mixed = [];
-		let updatedMixed = [];
 
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <title>Nokia QTD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
@@ -171,7 +164,6 @@
             color: white;
             transition: var(--anim-instant) transform 0.6s;
             transform-origin: left;
-			font-size: 0.70rem;
         }
 
         .subtitle:hover {
@@ -582,9 +574,9 @@
             <div class="halfleft">
                 <!-- <div class="frame-container" id="leftBottomFrame"></div> -->
                 <iframe id="leftBottomFrame"
-                    src="about:blank"
-					allow="clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay">					
-					</iframe>
+                    src="https://docs.google.com/spreadsheets/d/1H6q36D-_1c5_mXFpqhFtWQApCUTtigKLEFP3PgRwty8"
+				    allow="clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay">					
+					></iframe>
             </div>
             <div class="halfright">
                 <div class="iframe-container">
@@ -631,7 +623,7 @@
 		
         var spanElement = document.getElementById("nokia");
         spanElement.addEventListener("click", function () {
-            var url = "https://docs.google.com/spreadsheets/d/1IEJfF9k-73fK2GOEOsy53R7jp6GoRUswhx388xLJcRw";
+            var url = "https://docs.google.com/spreadsheets/d/1H6q36D-_1c5_mXFpqhFtWQApCUTtigKLEFP3PgRwty8";
             window.open(url, "_blank");
         });
 
@@ -784,9 +776,8 @@
                         resultArray.push(siteArray);
                         console.log("resultArray:", resultArray);
                         console.log("siteArray:", siteArray);
-						
                         // searchResult.innerHTML += '<br><span style="font-size:14px;cursor:pointer" onclick="openNav(\'' + json + '\')">' + resArr[0].site + '</span>';
-                        searchResult.innerHTML += '<br><span style="cursor:pointer" onclick="openNav(' + indexArray + ')">' + siteArray[0].site + '</span>';
+                        searchResult.innerHTML += '<br><span style="font-size:14px;cursor:pointer" onclick="openNav(' + indexArray + ')">' + siteArray[0].site + '</span>';
                         indexArray = indexArray + 1;
 
                         // console.log(searchResult.innerHTML);
@@ -798,65 +789,9 @@
                         //     console.log("URL:", obj.url);
                         // }
                     }
-										
-					if (indexArray > 0) {
-						(async () => {
-							// global mixed
-							mixed = [];
-
-							for (const group of resultArray) {
-								const siteid = group[0].site.split('_')[0];
-								const azItems = group.filter(item => item.name.includes("az"));
-								if (azItems.length > 0) {
-									mixed.push([siteid, ...azItems.flatMap(i => [i.name, i.url])]);
-								}
-							}
-
-							const uniqueSiteids = [...new Set(mixed.map(m => m[0]))];
-
-							const siteidToAzValues = Object.fromEntries(await Promise.all(
-								uniqueSiteids.map(async siteid => {
-									const res = await fetch(lastqtdaz, {
-										method: 'POST',
-										headers: { 'Content-Type': 'text/plain' },
-										body: JSON.stringify({ siteid })
-									});
-									const json = await res.json();
-									return [siteid, json];
-								})
-							));
-							
-							console.log("siteidToAzValues:", siteidToAzValues);
-							
-							  updatedMixed = mixed.map(row => {
-							  const siteid = row[0];
-							  const azValues = siteidToAzValues[siteid] || {};
-
-							  const longitude = azValues.longitude || '';
-							  const latitude = azValues.latitude || '';
-
-							  const updatedRow = [siteid, longitude, latitude];
-
-							  for (let i = 1; i < row.length; i += 2) {
-								const name = row[i];
-								const url = row[i + 1];
-
-								const baseAz = Object.keys(azValues).find(
-								  azKey => name.startsWith(azKey) && azKey !== 'longitude' && azKey !== 'latitude'
-								);
-								const value = baseAz ? `=${azValues[baseAz]}` : '';
-								updatedRow.push(name + value, url);
-							  }
-
-							  return updatedRow;
-							});							
-
-							console.log("updatedMixed:", updatedMixed);
-				
-							openNav(0);
-						})(); // <--- this is an immediately-invoked async function expression (IIFE)
-					}
-					
+                    if (indexArray > 0) {
+                        openNav(0);
+                    }
                 }
             })
                 .catch(error => {
@@ -896,14 +831,12 @@
             slides[slideIndex - 1].style.display = "block";
             dots[slideIndex - 1].className += " active";
             captionText.innerHTML = dots[slideIndex - 1].alt;
-			if (!document.getElementById("downloadKMLBtn")) {			
-				if (dots[slideIndex - 1].alt.charAt(0) === 'b') {
-					captionText1.innerHTML = "AFTER";
-				} else {
-					captionText1.innerHTML = "BEFORE";
-				}
-			}
-		}
+            if (dots[slideIndex - 1].alt.charAt(0) === 'b') {
+                captionText1.innerHTML = "AFTER";
+            } else {
+                captionText1.innerHTML = "BEFORE";
+            }
+        }
 
 
 
@@ -911,7 +844,7 @@
             // let resArr = JSON.parse(jsonString);
 			currentGalleryIndex = idx;
             resArr = resultArray[idx];
-            //console.log('openNav resArr:' + resArr);
+            console.log('openNav resArr:' + resArr);
             createGalery();
 
             slideIndex = 1;
@@ -924,10 +857,10 @@
 
         }
 
+        function createGalery() {
+            // Template for overlay content
+            let template = `
 
-function createGalery() {
-    // 1. Render slideshow exactly as before
-    let template = `
 <div class="container">
 {slides}
 <a class="prev" onclick="plusSlides(-1)">❮</a>
@@ -937,165 +870,49 @@ function createGalery() {
     <span id="caption1"></span><span id="caption"></span><h2 style="text-align:center">{site}</h2>
 </div>
 <div class="container">
-  <div class="row">
-    {thumbnails}
-  </div>
+<div class="row">
+{thumbnails}
+</div>
 </div>
 `;
 
-    let slidesHTML = "";
-    let thumbnailsHTML = "";
-    let placemarkName = resArr[0].site;            // e.g. "20SAG0132_2025709"
-    let rawSiteid     = placemarkName.split("_")[0]; // e.g. "20SAG0132"
+            // Initialize empty strings to store slides and thumbnails HTML
+            let slidesHTML = "";
+            let thumbnailsHTML = "";
 
-    resArr.forEach((obj, index) => {
-        slidesHTML += `
+            // Iterate through each object in resultArray
+            resArr.forEach((obj, index) => {
+                // Generate HTML for each slide
+                let slideHTML = `
 <div class="mySlides">
-  <div class="numbertext">${index + 1} / ${resArr.length}</div>
-  <img src="${obj.url}">
-</div>`;
-        thumbnailsHTML += `
-<div class="column">
-  <img class="demo cursor" src="${obj.url}" style="width:100%" onclick="currentSlide(${index + 1})" alt="${obj.name}">
-  <div class="tooltip">${obj.name}</div>
-</div>`;
-    });
-
-    document.querySelector(".overlay-content").innerHTML = template
-      .replace("{site}", placemarkName)
-      .replace("{slides}", slidesHTML)
-      .replace("{thumbnails}", thumbnailsHTML);
-
-    // 2. Lookup in updatedMixed for coordinates & az entries
-    const row = updatedMixed.find(r => r[0] === rawSiteid) || [];
-    const [ , longitude = "", latitude = "", ...azPairs ] = row;
-
-    // Build kmlImages from azPairs (name, url alternating)
-    const kmlImages = [];
-    for (let i = 0; i < azPairs.length; i += 2) {
-      const name = azPairs[i];
-      const url  = azPairs[i + 1];
-	  if (name && url && !/w/i.test(name)) {
-		kmlImages.push({ name, url });
-	  }
-  
-    }
-
-	// Step 2b: Concatenate only names without 'v' or 'w' (case-insensitive)
-	const nameList = kmlImages
-	  .filter(item => !/[vw]/i.test(item.name))
-	  .map(item => {
-		const parts = item.name.split('=');
-		return parts.length > 1 ? parts[1] : ''; // extract right side of '='
-	  })
-	  .filter(Boolean) // remove empty strings
-	  .join(' ');
-
-    // 3. Inject & style the KML button
-    const caption1 = document.getElementById("caption1");
-	caption1.innerHTML = `
-	  <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
-		<button id="downloadKMLBtn" style="
-		  padding: 8px 16px;
-		  background-color: #0066cc;
-		  color: white;
-		  border: none;
-		  border-radius: 5px;
-		  cursor: pointer;
-		  font-size: 14px;
-		  transition: background-color 0.2s ease;
-		">
-		  KML ${rawSiteid}
-		</button>
-		<span style="font-size: 14px; color: white;">${nameList}</span>
-	  </div>
-	`;
-
-    const btn = document.getElementById('downloadKMLBtn');
-    btn.addEventListener("mouseenter", () => btn.style.backgroundColor = "#004c99");
-    btn.addEventListener("mouseleave", () => btn.style.backgroundColor = "#0066cc");
-    btn.addEventListener("mousedown", () => btn.style.backgroundColor = "#003d80");
-    btn.addEventListener("mouseup", () => btn.style.backgroundColor = "#004c99");
-
-    // 4. Generate KML on click
-    btn.addEventListener('click', function () {
-        const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Placemark>
-    <name>${rawSiteid}</name>
-    <Style>
-      <IconStyle>
-		<color>ff55ffff</color>
-        <scale>1.0</scale>
-        <Icon>
-          <href>http://maps.google.com/mapfiles/kml/shapes/donut.png</href>
-        </Icon>
-      </IconStyle>
-      <LabelStyle>
-		<color>ffffff7f</color>
-        <scale>0.7</scale>
-      </LabelStyle>
-    </Style>	
-    <description><![CDATA[
-<style>
-.tab-container { width:800px; font-family:Arial,sans-serif; text-align:center; }
-.tab-container input { display:none; }
-.tab-links { background:white; padding:5px; text-align:center; }
-.tab-container label {
-  display:inline-block; padding:0 8px; color:#0066cc;
-  text-decoration:underline; cursor:pointer; font-size:14px;
-}
-.tab-container label:hover { text-decoration:none; }
-.tab-container .tab-content {
-  display:none; border-top:1px solid #ccc; margin:10px 0;
-}
-.tab-container input:checked + label { font-weight:bold; text-decoration:none; }
-${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
-  display:block;
-}
-.tab-container img { display:block; margin:0 auto; width:100%; height:auto; }
-</style>
-
-<div class="tab-container">
-  ${kmlImages.map((_, i) =>
-    `<input type="radio" id="tab${i+1}" name="tabs" ${i===0?'checked':''}>`
-  ).join("\n")}
-  <div class="tab-links">
-    ${kmlImages.map((img, i) =>
-      `<label for="tab${i+1}">${img.name}</label>${i<kmlImages.length-1?" | ":""}`
-    ).join("\n")}
-  </div>
-  ${kmlImages.map((img, i) => `
-  <div id="content${i+1}" class="tab-content">
-    <img src="${img.url}">
-    <div class="tab-links">
-      ${kmlImages.map((inner, j) =>
-        `<label for="tab${j+1}">${inner.name}</label>${j<kmlImages.length-1?" | ":""}`
-      ).join("\n")}
-    </div>
-  </div>`).join("\n")}
+<div class="numbertext">${index + 1} / ${resArr.length}</div>
+<img src="${obj.url}">
 </div>
-    ]]></description>
-    <Point>
-      <coordinates>${longitude},${latitude},0</coordinates>
-    </Point>
-  </Placemark>
-</kml>`;
+`;
+                slidesHTML += slideHTML;
 
-        const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
-        const url = URL.createObjectURL(blob);
+                // Generate HTML for each thumbnail
+                let thumbnailHTML = `
+<div class="column">
+<img class="demo cursor" src="${obj.url}" style="width:100%" onclick="currentSlide(${index + 1})" alt="${obj.name}">
+<div class="tooltip">${obj.name}</div>
+</div>
+`;
+                thumbnailsHTML += thumbnailHTML;
+            });
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${placemarkName}.kml`;
-        link.click();
-        URL.revokeObjectURL(url);
-    });
-}
-		
+            // Replace placeholders in the template with actual HTML
+            let overlayContentHTML = template
+                .replace("{site}", resArr[0].site)
+                .replace("{slides}", slidesHTML)
+                .replace("{thumbnails}", thumbnailsHTML);
 
+            // Get the overlay-content element
+            let overlayContent = document.querySelector(".overlay-content");
 
-		
+            // Set the generated HTML as the content of overlay-content
+            overlayContent.innerHTML = overlayContentHTML;
+        }
         function closeNav() {
             document.getElementById("myNav").style.width = "0%";
             lowerdiv.style.transition = "opacity 0.5s 0.5s";
@@ -1605,222 +1422,6 @@ ${kmlImages.map((_, i) => `#tab${i+1}:checked ~ #content${i+1}`).join(',')} {
 				}
 			}
 		});		
-
-  // callback invoked by JSONP response from GAS
-  function setLastCellUrl(url) {
-    if (!url) return;
-    try {
-      var iframe = document.getElementById('leftBottomFrame');
-      iframe.src = url;
-      console.log('leftBottomFrame src set to', url);
-    } catch (e) {
-      console.error('Error setting iframe src', e);
-    }
-  }
-
-
-			
-	const AREA_SHEETS = {
-	  KAL: 'QTD KAL',        // Kalimantan
-	  CJ:  'QTD CJ',         // Central Java
-	  EJ:  'QTD EJ',         // East Java
-	  SS:  'QTD SS',         // South Sumatra
-	  NS:  'QTD NS',         // North Sumatra
-	  ALL: 'ALL'             // special token meaning "use default/global"
-	};
-	
-	/* small cookie helpers - persistent cookie (10 years) */
-	function setCookie(name, value, days = 3650) {
-	  const expires = new Date(Date.now() + days * 24*60*60*1000).toUTCString();
-	  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-	}
-	function getCookie(name) {
-	  const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
-	  return m ? decodeURIComponent(m[1]) : null;
-	}
-	function deleteCookie(name) {
-	  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-	}
-	
-	/* Build & inject the JSONP call to GAS.
-	   If sheetName is null OR 'ALL' -> request default behavior (no sheet param).
-	   If sheetName provided -> add &sheet=...&last3=1 (so server can return last-3-row URL) */
-	function injectLastcellJSONP(sheetName) {
-	  let gasUrl = url + '?action=lastcell&callback=setLastCellUrl';
-	  if (sheetName && sheetName !== 'ALL') {
-	    gasUrl += '&sheet=' + encodeURIComponent(sheetName) + '&last3=1';
-	  }
-	  const s = document.createElement('script');
-	  s.src = gasUrl;
-	  s.async = true;
-	  document.head.appendChild(s);
-	}
-	
-	/* Show a small modal dialog to let user pick area(s). Multiple allowed.
-	   If exactly one area chosen and not ALL, we request that sheet's last-3 rows.
-	   Otherwise fallback to default (inject without sheet param). */
-
-
-	function showAreaDialog(onSave) {
-	  if (!document.getElementById('qtd-area-modal-styles')) {
-	    var s = document.createElement('style');
-	    s.id = 'qtd-area-modal-styles';
-	    s.textContent =
-	      ':root{--brand:hsl(219,100%,50%);}#qtd-area-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2147483647;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);}#qtd-area-card{width:360px;max-width:92%;background:#fff;border-radius:12px;padding:18px 18px 14px;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;color:#0b1220;box-shadow:0 8px 20px rgba(10,20,40,0.08);transition:opacity .18s ease,transform .18s ease;transform:translateY(0);}#qtd-area-title{font-weight:700;margin:0 0 12px 0;font-size:15px;}#qtd-area-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}#qtd-area-grid label{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid rgba(11,18,32,0.06);cursor:pointer;transition:box-shadow .14s ease,transform .14s ease;background:#fff;}#qtd-area-grid label:hover{box-shadow:0 6px 18px rgba(11,18,32,0.06);transform:translateY(-2px);}#qtd-area-grid input{width:18px;height:18px;accent-color:var(--brand);}#qtd-area-actions{display:flex;justify-content:flex-end;gap:10px;}#qtd-area-actions button{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600;transition:transform .12s ease,opacity .12s ease;}#qtd-area-cancel{background:transparent;color:#334155;border:1px solid rgba(51,65,85,0.08);}#qtd-area-save{background:var(--brand);color:#fff;box-shadow:0 6px 14px rgba(33,100,255,0.10);}#qtd-area-note{font-size:12px;color:#556176;margin-top:10px;}@media (prefers-reduced-motion:reduce){#qtd-area-card,#qtd-area-grid label,#qtd-area-actions button{transition:none;}}';
-	    document.head.appendChild(s);
-	  }
-	
-	  var overlay = document.createElement('div');
-	  overlay.id = 'qtd-area-overlay';
-	  overlay.setAttribute('role', 'dialog');
-	  overlay.setAttribute('aria-modal', 'true');
-	
-	  var card = document.createElement('div');
-	  card.id = 'qtd-area-card';
-	
-	  var title = document.createElement('h3');
-	  title.id = 'qtd-area-title';
-	  title.textContent = 'Select Working Area';
-	
-	  var grid = document.createElement('div');
-	  grid.id = 'qtd-area-grid';
-	
-	  var areas = [
-	    { code: 'KAL', name: 'Kalimantan' },
-	    { code: 'CJ', name: 'Central Java' },
-	    { code: 'EJ', name: 'East Java' },
-	    { code: 'SS', name: 'South Sumatra' },
-	    { code: 'NS', name: 'North Sumatra' },
-	    { code: 'ALL', name: 'All area' }
-	  ];
-	
-	  for (var i = 0; i < areas.length; i++) {
-	    var a = areas[i];
-	    var lbl = document.createElement('label');
-	    lbl.setAttribute('data-area', a.code);
-	    var cb = document.createElement('input');
-	    cb.type = 'checkbox';
-	    cb.setAttribute('data-area', a.code);
-	    cb.setAttribute('aria-label', a.name);
-	    var span = document.createElement('span');
-	    span.textContent = a.name;
-	    lbl.appendChild(cb);
-	    lbl.appendChild(span);
-	    grid.appendChild(lbl);
-	  }
-	
-	  var actions = document.createElement('div');
-	  actions.id = 'qtd-area-actions';
-	  var cancel = document.createElement('button');
-	  cancel.id = 'qtd-area-cancel';
-	  cancel.type = 'button';
-	  cancel.textContent = 'Cancel (use default)';
-	  var save = document.createElement('button');
-	  save.id = 'qtd-area-save';
-	  save.type = 'button';
-	  save.textContent = 'Save & Continue';
-	
-	  actions.appendChild(cancel);
-	  actions.appendChild(save);
-	
-	  var note = document.createElement('div');
-	  note.id = 'qtd-area-note';
-	  note.innerHTML = 'You can reselect later by clearing the cookie</code>';
-	
-	  card.appendChild(title);
-	  card.appendChild(grid);
-	  card.appendChild(actions);
-	  card.appendChild(note);
-	  overlay.appendChild(card);
-	  document.body.appendChild(overlay);
-	
-	  var prevOverflow = document.body.style.overflow;
-	  document.body.style.overflow = 'hidden';
-	
-	  var firstCb = grid.querySelector('input[type=checkbox]');
-	  if (firstCb) { firstCb.focus(); }
-	
-	  function collectSelected() {
-	    var checks = grid.querySelectorAll('input[type=checkbox]');
-	    var sel = [];
-	    for (var j = 0; j < checks.length; j++) {
-	      if (checks[j].checked) sel.push(checks[j].getAttribute('data-area'));
-	    }
-	    if (sel.indexOf('ALL') !== -1 || sel.length === 0) return ['ALL'];
-	    return sel;
-	  }
-	
-	  function closeAndCleanup(resultArray) {
-	    try { onSave(resultArray); } catch (e) { /* ignore */ }
-	    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-	    document.body.style.overflow = prevOverflow || '';
-	    document.removeEventListener('keydown', keyHandler, true);
-	    // small delay so any immediate handlers (inject JSONP / setCookie) run, then reload
-	    setTimeout(function () { try { location.reload(); } catch (e) { /* ignore */ } }, 220);
-	  }
-	
-	  save.addEventListener('click', function () { closeAndCleanup(collectSelected()); });
-	  cancel.addEventListener('click', function () { closeAndCleanup(['ALL']); });
-	
-	  overlay.addEventListener('click', function (ev) {
-	    if (ev.target === overlay) closeAndCleanup(['ALL']);
-	  });
-	
-	  grid.addEventListener('change', function (ev) {
-	    var target = ev.target;
-	    if (!target || target.type !== 'checkbox') return;
-	    if (target.getAttribute('data-area') === 'ALL' && target.checked) {
-	      var all = grid.querySelectorAll('input[type=checkbox]');
-	      for (var k = 0; k < all.length; k++) {
-	        if (all[k].getAttribute('data-area') !== 'ALL') all[k].checked = false;
-	      }
-	    } else if (target.checked) {
-	      var allbox = grid.querySelector('input[data-area=\"ALL\"]');
-	      if (allbox) allbox.checked = false;
-	    }
-	  });
-	
-	  function keyHandler(e) {
-	    if (e.key === 'Escape' || e.keyCode === 27) {
-	      e.preventDefault();
-	      closeAndCleanup(['ALL']);
-	    }
-	  }
-	  document.addEventListener('keydown', keyHandler, true);
-	}
-
-
-
-		
-	(function initAreaChoice() {
-	  var cookie = getCookie('qtd_area');
-	  if (cookie) {
-	    var areas = cookie.split(',').filter(Boolean);
-	    var first = areas[0];
-	    if (first && first !== 'ALL') {
-	      var sheetName = AREA_SHEETS[first] || first;
-	      injectLastcellJSONP(sheetName);
-	    } else {
-	      injectLastcellJSONP(null);
-	    }
-	    return;
-	  }
-	
-	  // no cookie: ask user
-	  showAreaDialog(function(selectedAreas) {
-	    // persist
-	    setCookie('qtd_area', selectedAreas.join(','));
-	    var sel = (selectedAreas || []).filter(Boolean);
-	    var firstSel = sel[0];
-	    if (firstSel && firstSel !== 'ALL') {
-	      var sheet = AREA_SHEETS[firstSel] || firstSel;
-	      injectLastcellJSONP(sheet);
-	    } else {
-	      injectLastcellJSONP(null);
-	    }
-	  });
-	})();	
-      
     </script>
 </body>
 
