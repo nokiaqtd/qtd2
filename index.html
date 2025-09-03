@@ -822,6 +822,7 @@
 										body: JSON.stringify({ siteid })
 									});
 									const json = await res.json();
+									console.log('DEBUG2 lastqtdaz (batch) for', siteid, json, 'keys=', Object.keys(json||{}));
 									return [siteid, json];
 								})
 							));
@@ -1069,7 +1070,10 @@ function createGalery() {
 	      const t = await resp.text();
 	      try { data = JSON.parse(t); } catch (ee) { data = {}; }
 	    }
-	
+		// DEBUG: log what the lastqtdaz endpoint returned for this siteid
+		console.log('DEBUG1 lastqtdaz response for', rawSiteid, data);
+		console.log('DEBUG1 lastqtdaz keys:', Object.keys(data || {}));
+		  
 	    // tolerant helpers to find lat/lon and columns
 	    const setIf = (id, v) => {
 	      const el = document.getElementById(id);
