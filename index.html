@@ -1042,9 +1042,9 @@ function createGalery() {
 	    const applyBtn = document.getElementById('applyAzBtn');
 	
 	    // store original style/text to restore later
-	    const origApplyText = applyBtn ? applyBtn.textContent : 'Apply';
-	    const origApplyBg = applyBtn ? applyBtn.style.backgroundColor : '';
-	    const origApplyCursor = applyBtn ? applyBtn.style.cursor : '';
+		const origApplyText = 'Apply';
+		const origApplyBg = '#008000';
+		const origApplyCursor = 'pointer';
 	
 	    // ensure button is disabled + loading state while fetching
 	    if (applyBtn) {
@@ -1166,10 +1166,10 @@ function createGalery() {
 	
 	    // restore apply button to ready state
 	    if (applyBtn) {
-	      applyBtn.disabled = false;
-	      applyBtn.style.backgroundColor = origApplyBg || '#008000';
-	      applyBtn.style.cursor = origApplyCursor || 'pointer';
-	      applyBtn.textContent = origApplyText === 'Apply' ? 'Apply' : (origApplyText || 'Apply');
+		  applyBtn.disabled = false;
+		  applyBtn.style.backgroundColor = origApplyBg;
+		  applyBtn.style.cursor = origApplyCursor;
+		  applyBtn.textContent = origApplyText;
 	    }
 	
 	    // APPLY button handler: send update request to GAS
