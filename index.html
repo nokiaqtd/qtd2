@@ -822,7 +822,6 @@
 										body: JSON.stringify({ siteid })
 									});
 									const json = await res.json();
-									console.log('DEBUG2 lastqtdaz (batch) for', siteid, json, 'keys=', Object.keys(json||{}));
 									return [siteid, json];
 								})
 							));
@@ -1043,9 +1042,9 @@ function createGalery() {
 	    const applyBtn = document.getElementById('applyAzBtn');
 	
 	    // store original style/text to restore later
-		const origApplyText = 'Apply';
-		const origApplyBg = '#008000';
-		const origApplyCursor = 'pointer';
+	    const origApplyText = applyBtn ? applyBtn.textContent : 'Apply';
+	    const origApplyBg = applyBtn ? applyBtn.style.backgroundColor : '';
+	    const origApplyCursor = applyBtn ? applyBtn.style.cursor : '';
 	
 	    // ensure button is disabled + loading state while fetching
 	    if (applyBtn) {
@@ -1070,60 +1069,47 @@ function createGalery() {
 	      const t = await resp.text();
 	      try { data = JSON.parse(t); } catch (ee) { data = {}; }
 	    }
-		// DEBUG: log what the lastqtdaz endpoint returned for this siteid
-		console.log('DEBUG1 lastqtdaz response for', rawSiteid, data);
-		console.log('DEBUG1 lastqtdaz keys:', Object.keys(data || {}));
-		  
+	
 	    // tolerant helpers to find lat/lon and columns
 	    const setIf = (id, v) => {
 	      const el = document.getElementById(id);
 	      if (el) el.value = (v === undefined || v === null) ? '' : String(v);
 	    };
 	
-		// Extract list helper (separate for AZ (G) and MT (F))
-		// NOTE: this function will prefer column keys first (e.g. 'G' or 'F'),
-		// and only fall back to prefix-matched keys (az* for AZ extraction, mt* for MT extraction).
-		function extractListFrom(obj, colKeys) {
-		  if (!obj) return [];
-		  if (typeof obj === 'string') {
-		    if (obj.includes(';')) return obj.split(';').map(s => s.trim()).filter(Boolean);
-		    return [obj.trim()].filter(Boolean);
-		  }
-		  // prefer explicit column keys first (G/F etc)
-		  for (const k of colKeys) {
-		    if (obj[k] && typeof obj[k] === 'string') {
-		      if (obj[k].includes(';')) return obj[k].split(';').map(s => s.trim()).filter(Boolean);
-		      if (obj[k].trim() !== '') return [obj[k].trim()];
-		    }
-		  }
-		
-		  // fallback: decide which prefix to look for based on requested column keys
-		  // if caller asked for mt-like keys (colKeys includes 'm' or 'mt'), prefer /^mt/i; otherwise /^az/i
-		  const isMT = colKeys.some(c => /^m/i.test(String(c)));
-		  const prefixRegex = isMT ? /^mt/i : /^az/i;
-		
-		  const prefKeys = Object.keys(obj).filter(k => prefixRegex.test(k)).sort();
-		  if (prefKeys.length) return prefKeys.map(k => String(obj[k] || '').trim()).filter(Boolean);
-		
-		  // if object contains rows array (array of row-objects), collect values from each row
-		  if (Array.isArray(obj.rows) && obj.rows.length) {
-		    const res = [];
-		    for (const r of obj.rows) {
-		      for (const k of colKeys) {
-		        if (r[k]) {
-		          if (String(r[k]).includes(';')) {
-		            res.push(...String(r[k]).split(';').map(s => s.trim()).filter(Boolean));
-		          } else {
-		            res.push(String(r[k]).trim());
-		          }
-		        }
-		      }
-		    }
-		    return res;
-		  }
-		  return [];
-		}
-
+	    // Extract list helper (separate for AZ (G) and MT (F))
+	    function extractListFrom(obj, colKeys) {
+	      if (!obj) return [];
+	      if (typeof obj === 'string') {
+	        if (obj.includes(';')) return obj.split(';').map(s => s.trim()).filter(Boolean);
+	        return [obj.trim()].filter(Boolean);
+	      }
+	      for (const k of colKeys) {
+	        if (obj[k] && typeof obj[k] === 'string') {
+	          if (obj[k].includes(';')) return obj[k].split(';').map(s => s.trim()).filter(Boolean);
+	          if (obj[k].trim() !== '') return [obj[k].trim()];
+	        }
+	      }
+	      // az1/az2 etc
+	      const azKeys = Object.keys(obj).filter(k => /^az/i.test(k)).sort();
+	      if (azKeys.length) return azKeys.map(k => String(obj[k] || '').trim()).filter(Boolean);
+	      // rows array
+	      if (Array.isArray(obj.rows) && obj.rows.length) {
+	        const res = [];
+	        for (const r of obj.rows) {
+	          for (const k of colKeys) {
+	            if (r[k]) {
+	              if (String(r[k]).includes(';')) {
+	                res.push(...String(r[k]).split(';').map(s => s.trim()).filter(Boolean));
+	              } else {
+	                res.push(String(r[k]).trim());
+	              }
+	            }
+	          }
+	        }
+	        return res;
+	      }
+	      return [];
+	    }
 	
 	    // AZ candidates from column G
 	    const azCandidates = extractListFrom(data, ['G','g','az','AZ','Az']);
@@ -1178,14 +1164,13 @@ function createGalery() {
 	    };
 	    toggle4(az4); toggle4(mt4);
 	
-		// restore apply button to ready state
-		if (applyBtn) {
-		  applyBtn.disabled = false;
-		  applyBtn.style.backgroundColor = origApplyBg;
-		  applyBtn.style.cursor = origApplyCursor;
-		  applyBtn.textContent = origApplyText;
-		}
-
+	    // restore apply button to ready state
+	    if (applyBtn) {
+	      applyBtn.disabled = false;
+	      applyBtn.style.backgroundColor = origApplyBg || '#008000';
+	      applyBtn.style.cursor = origApplyCursor || 'pointer';
+	      applyBtn.textContent = origApplyText === 'Apply' ? 'Apply' : (origApplyText || 'Apply');
+	    }
 	
 	    // APPLY button handler: send update request to GAS
 	    if (applyBtn) {
