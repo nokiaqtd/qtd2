@@ -1257,16 +1257,37 @@ function createGalery() {
 	            body: JSON.stringify(payload)
 	          });
 	
-	          // try JSON reply else text
-	          let rtext;
-	          try {
-	            const jr = await r.json();
-	            rtext = JSON.stringify(jr);
-	          } catch (e) {
-	            rtext = await r.text();
-	          }
-			  console.log('Update response: ' + rtext);
-	          alert('Update response: ' + rtext);
+	          
+				// read response body only once (as text), then try parse JSON from that text
+				let rtext = '';
+				try {
+				  const bodyText = await r.text(); // read once
+				  // try parse as JSON, otherwise keep raw text
+				  try {
+				    const parsed = JSON.parse(bodyText);
+				    // pretty-print JSON for the alert/log
+				    rtext = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+				  } catch (je) {
+				    rtext = bodyText;
+				  }
+				} catch (readErr) {
+				  console.error('Failed to read response body', readErr);
+				  rtext = 'error reading response: ' + String(readErr);
+				}
+				
+				console.log('Update response: ' + rtext);
+				
+				// decide success vs failure
+				const trimmed = (rtext || '').toString().trim();
+				if (trimmed === 'ok') {
+				  alert('Update successful');
+				} else if (trimmed.toLowerCase().startsWith('error:')) {
+				  alert('Update failed: ' + rtext);
+				} else {
+				  // backend might return JSON or message - treat non-'ok' as failure (adjust if you want)
+				  alert('Update response: ' + rtext);
+				}
+
 	
 	          // restore apply button
 	          newApply.disabled = false;
