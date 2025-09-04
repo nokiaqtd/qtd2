@@ -1073,16 +1073,10 @@
 			  try {
 			    const applyBtn = document.getElementById('applyAzBtn');
 
-				// attach to all .azmt-input elements
-				document.addEventListener("DOMContentLoaded", () => {
-				  document.querySelectorAll(".azmt-input").forEach(input => {
-				    // initialize size on load
-				    autoResizeInput(input);
-				
-				    // update while typing
-				    input.addEventListener("input", () => autoResizeInput(input));
-				  });
-				});			
+				Array.prototype.forEach.call(document.querySelectorAll('.azmt-input'), function(input){
+				  autoResizeInput(input);
+				  input.addEventListener('input', function(){ autoResizeInput(input); });
+				});
 				  
 			    // store original style/text to restore later
 				const origApplyText = 'Apply';
