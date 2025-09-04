@@ -646,62 +646,12 @@
 
     <script>
 
-		// ---------- Dynamic sizing & reveal helpers ----------
-		function adjustInputWidth(el) {
-		  if (!el) return;
-		  // +1 to give a bit of padding; enforce min 3 ch, max maybe 40 ch
-		  var len = Math.max(3, (el.value || '').toString().length + 1);
-		  if (len > 60) len = 60; // safety cap
-		  el.style.width = len + 'ch';
+		function autoResizeInput(input) {
+		  // +1 so it never fully collapses
+		  input.style.width = (input.value.length + 1) + "ch";
 		}
 		
-		function attachResizers(ids) {
-		  ids.forEach(id => {
-		    var el = document.getElementById(id);
-		    if (!el) return;
-		    // initial sizing (if value already present)
-		    adjustInputWidth(el);
-		    // attach input listener (avoid duplicates) — clone to remove old listeners
-		    var clone = el.cloneNode(true);
-		    el.parentNode.replaceChild(clone, el);
-		    clone.addEventListener('input', function () {
-		      adjustInputWidth(this);
-		      // DO NOT hide the input while user is typing; only size it
-		      // (visibility controlled by revealInputs() when showing fields initially)
-		    });
-		  });
-		}
-		
-		/**
-		 * Reveal inputs after loading complete.
-		 * - restores apply button appearance (pass button element)
-		 * - shows inputs (except inputrows) only when their content is not empty
-		 */
-		function revealInputs(newApply /* element or null */) {
-		  // restore apply button styling if provided
-		  if (newApply) {
-		    newApply.disabled = false;
-		    // reset styles (assumes you stored prevText and maybe changed styles previously)
-		    newApply.style.backgroundColor = '';
-		    newApply.style.cursor = '';
-		  }
-		
-		  var ids = ['inputyx','inputaz1','inputaz2','inputaz3','inputaz4',
-		             'inputmt1','inputmt2','inputmt3','inputmt4'];
-		  ids.forEach(id => {
-		    var el = document.getElementById(id);
-		    if (!el) return;
-		    if (el.value && el.value.toString().trim() !== '') {
-		      el.style.display = 'inline-block';
-		      adjustInputWidth(el);
-		    } else {
-		      el.style.display = 'none';
-		    }
-		  });
-		
-		  // ensure resizers are attached so typing adjusts widths later
-		  attachResizers(ids);
-		}
+
 
 		
 		let currentGalleryIndex = 0; // to remember the last opened index
@@ -1116,13 +1066,24 @@
 		    btn.addEventListener("mouseleave", () => btn.style.backgroundColor = "#0066cc");
 		    btn.addEventListener("mousedown", () => btn.style.backgroundColor = "#003d80");
 		    btn.addEventListener("mouseup", () => btn.style.backgroundColor = "#004c99");
-		
+
 			
 			// populate inputs from GAS (same endpoint used elsewhere: lastqtdaz / url)
 			(async function populateAndWire() {
 			  try {
 			    const applyBtn = document.getElementById('applyAzBtn');
-			
+
+				// attach to all .azmt-input elements
+				document.addEventListener("DOMContentLoaded", () => {
+				  document.querySelectorAll(".azmt-input").forEach(input => {
+				    // initialize size on load
+				    autoResizeInput(input);
+				
+				    // update while typing
+				    input.addEventListener("input", () => autoResizeInput(input));
+				  });
+				});			
+				  
 			    // store original style/text to restore later
 				const origApplyText = 'Apply';
 				const origApplyBg = '#008000';
