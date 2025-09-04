@@ -1214,30 +1214,22 @@ function createGalery() {
 	
 	      newApply.addEventListener('click', async function () {
 	        try {
-	          // parse combined inputyx into lat & lon using non-digit/dot/minus separator
-	          const raw = (document.getElementById('inputyx')||{}).value || '';
-	          // split on any non-digit / non-dot / non-minus characters (space, comma, semicolon, etc.)
-	          const parts = raw.split(/[^0-9\.\-]+/).filter(Boolean);
-	          const latitude = parts.length >= 1 ? parts[0] : '';
-	          const longitude = parts.length >= 2 ? parts[1] : '';
-	
+				const inputrows = getVal('inputrows');     // hidden, already semicolon-delimited if created earlier
+				const inputyx   = getVal('inputyx');       // "lat lon" combined
+				
+				// build combined az/mt strings from az1..4 and mt1..4 (only include non-empty items)
+				const azs = [1,2,3,4].map(i => getVal('inputaz' + i)).filter(v => v !== '');
+				const mts = [1,2,3,4].map(i => getVal('inputmt' + i)).filter(v => v !== '');
+				const inputaz = azs.join(';');
+				const inputmt = mts.join(';');
+								
 	          const payload = {
 	            action: 'updateAzMt',      // server must handle this action
 	            siteid: rawSiteid,
-	            latitude: latitude,
-	            longitude: longitude,
-	            az: [
-	              (document.getElementById('inputaz1')||{}).value || '',
-	              (document.getElementById('inputaz2')||{}).value || '',
-	              (document.getElementById('inputaz3')||{}).value || '',
-	              (document.getElementById('inputaz4')||{}).value || ''
-	            ].filter(v => v !== ''),
-	            mt: [
-	              (document.getElementById('inputmt1')||{}).value || '',
-	              (document.getElementById('inputmt2')||{}).value || '',
-	              (document.getElementById('inputmt3')||{}).value || '',
-	              (document.getElementById('inputmt4')||{}).value || ''
-	            ].filter(v => v !== '')
+	            inputrows: inputrows,
+	            inputyx: inputyx,
+	            inputaz: inputaz,
+	            inputmt: inputmt
 	          };
 	
 	          // disable button while performing update
@@ -1262,7 +1254,7 @@ function createGalery() {
 	          } catch (e) {
 	            rtext = await r.text();
 	          }
-	
+			  console.log('Update response: ' + rtext);
 	          alert('Update response: ' + rtext);
 	
 	          // restore apply button
@@ -1272,7 +1264,9 @@ function createGalery() {
 	          newApply.textContent = prevText || 'Apply';
 	
 	        } catch (e) {
-	          alert('Update failed: ' + (e && e.message ? e.message : e));
+	          console.log('Update failed: ' + (e && e.message ? e.message : e));
+			  alert('Update failed: ' + (e && e.message ? e.message : e));
+				
 	          // restore apply button on failure
 	          try {
 	            newApply.disabled = false;
