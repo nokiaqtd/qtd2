@@ -1214,6 +1214,17 @@ function createGalery() {
 	
 	      newApply.addEventListener('click', async function () {
 	        try {
+
+			    // disable button while working
+			    newApply.disabled = true;
+			
+			    // helper: get trimmed value or empty string
+			    const getVal = id => {
+			      const el = document.getElementById(id);
+			      return el ? String(el.value || '').trim() : '';
+			    };
+			
+							
 				const inputrows = getVal('inputrows');     // hidden, already semicolon-delimited if created earlier
 				const inputyx   = getVal('inputyx');       // "lat lon" combined
 				
