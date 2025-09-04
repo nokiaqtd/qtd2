@@ -1008,7 +1008,9 @@ function createGalery() {
 	    </button>
 	
 	    <!-- combined lat lon input -->
-	    <input id="inputyx" placeholder="lat lon (H I)" title="Column H (lat) and I (lon) combined" style="width:190px;padding:6px;font-size:13px;border-radius:4px;border:1px solid #ccc;">
+	    
+		<input id="inputrows" placeholder="rows" title="rows" style="width:190px;padding:6px;font-size:13px;border-radius:4px;border:1px solid #ccc;">
+	 	<input id="inputyx" placeholder="lat lon (H I)" title="Column H (lat) and I (lon) combined" style="width:190px;padding:6px;font-size:13px;border-radius:4px;border:1px solid #ccc;">
 	
 	    <input id="inputaz1" placeholder="az1 (G)" title="Column G - az1" style="width:70px;padding:6px;font-size:13px;border-radius:4px;border:1px solid #ccc;">
 	    <input id="inputaz2" placeholder="az2 (G)" title="Column G - az2" style="width:70px;padding:6px;font-size:13px;border-radius:4px;border:1px solid #ccc;">
@@ -1130,39 +1132,71 @@ function createGalery() {
 	    }
 	
 	    // set combined lat/lon if present separately in data
+	
+	    // set combined lat/lon if present separately in data (prefer explicit fields)
 	    const possibleLat = data.latitude || data.lat || data.LATITUDE || data.H || data.h || '';
 	    const possibleLon = data.longitude || data.lon || data.LONGITUDE || data.I || data.i || '';
 	
 	    if (possibleLat || possibleLon) {
-	      // if both exist set "lat<space>lon"
+	      // prefer returned latitude/longitude if provided
 	      setIf('inputyx', (possibleLat || '') + (possibleLat && possibleLon ? ' ' : '') + (possibleLon || ''));
 	    } else {
-	      // else, check if server returned a single cell for lat/lon (maybe "H;I" or "H|I")
-	      // try reading a combined field if present
+	      // fallback: combined field
 	      const combined = data.latlon || data.lat_lon || data['H;I'] || '';
 	      if (combined) setIf('inputyx', combined);
 	    }
 	
-	    // write up to 4 az and 4 mt separately
-	    for (let i = 0; i < 4; i++) {
-	      setIf('inputaz' + (i+1), azCandidates[i] || '');
-	      setIf('inputmt' + (i+1), mtCandidates[i] || '');
+	    // Prefer explicit az1..az4 and mt1..mt4 from server response; fall back to azCandidates / mtCandidates
+	    for (let i = 1; i <= 4; i++) {
+	      const azKey = 'az' + i;
+	      const mtKey = 'mt' + i;
+	      const azVal = (data[azKey] !== undefined && data[azKey] !== null && String(data[azKey]).trim() !== '') ?
+	                    String(data[azKey]).trim() : (azCandidates[i - 1] || '');
+	      const mtVal = (data[mtKey] !== undefined && data[mtKey] !== null && String(data[mtKey]).trim() !== '') ?
+	                    String(data[mtKey]).trim() : (mtCandidates[i - 1] || '');
+	      setIf('inputaz' + i, azVal);
+	      setIf('inputmt' + i, mtVal);
 	    }
 	
-	    // hide inputaz4 and inputmt4 if empty
-	    const az4 = document.getElementById('inputaz4');
-	    const mt4 = document.getElementById('inputmt4');
-	    if (az4) az4.style.display = (az4.value && az4.value.trim() !== '') ? 'inline-block' : 'none';
-	    if (mt4) mt4.style.display = (mt4.value && mt4.value.trim() !== '') ? 'inline-block' : 'none';
+	    // Show / hide inputs 2..4 individually depending on whether they have values
+	    ['2','3','4'].forEach(n => {
+	      const azEl = document.getElementById('inputaz' + n);
+	      const mtEl = document.getElementById('inputmt' + n);
+	      if (azEl) azEl.style.display = (azEl.value && azEl.value.trim() !== '') ? 'inline-block' : 'none';
+	      if (mtEl) mtEl.style.display = (mtEl.value && mtEl.value.trim() !== '') ? 'inline-block' : 'none';
+	    });
 	
-	    // add listeners so when a user manually clears/shows input4 it toggles visibility
-	    const toggle4 = (el) => {
+	    // create (if missing) a hidden input 'inputrows' and set it to rows joined by ';'
+	    let inputRowsEl = document.getElementById('inputrows');
+	    if (!inputRowsEl) {
+	      inputRowsEl = document.createElement('input');
+	      inputRowsEl.type = 'hidden';
+	      inputRowsEl.id = 'inputrows';
+	      // append hidden input near caption1 so it travels with the gallery/controls
+	      const caption1Node = document.getElementById('caption1') || document.getElementById('caption');
+	      if (caption1Node) caption1Node.appendChild(inputRowsEl);
+	      else document.body.appendChild(inputRowsEl);
+	    }
+	    if (Array.isArray(data.rows)) {
+	      inputRowsEl.value = data.rows.join(';');
+	    } else if (typeof data.rows === 'string') {
+	      inputRowsEl.value = data.rows;
+	    } else {
+	      inputRowsEl.value = '';
+	    }
+	
+	    // ensure inputs 2..4 toggle visibility on manual edit as well
+	    ['inputaz2','inputaz3','inputaz4','inputmt2','inputmt3','inputmt4'].forEach(id=>{
+	      const el = document.getElementById(id);
 	      if (!el) return;
-	      el.addEventListener('input', () => {
-	        el.style.display = (el.value && el.value.trim() !== '') ? 'inline-block' : 'none';
+	      // avoid adding duplicate listeners: remove old then add new by cloning node
+	      const clone = el.cloneNode(true);
+	      el.parentNode.replaceChild(clone, el);
+	      clone.addEventListener('input', () => {
+	        clone.style.display = (clone.value && clone.value.trim() !== '') ? 'inline-block' : 'none';
 	      });
-	    };
-	    toggle4(az4); toggle4(mt4);
+	    });
+		  
 	
 	    // restore apply button to ready state
 	    if (applyBtn) {
