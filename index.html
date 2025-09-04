@@ -571,6 +571,15 @@
 	
 	  /* optional: slightly different min-width for inputyx (lat lon) */
 	  #inputyx.azmt-input { min-width: 17ch; }
+
+		/* split gallery + resizer */
+		.gallery-split{display:flex;gap:8px;height:80vh;align-items:stretch}
+		.gallery-left{width:45%;min-width:220px;max-width:75%}
+		.gallery-left iframe{width:100%;height:100%;border:0;display:block}
+		#galleryResizer{width:8px;cursor:col-resize;background:rgba(0,0,0,0.06)}
+		.gallery-right{flex:1 1 0;min-width:300px;overflow:auto}
+
+			
 	</style>
 		
 </head>
@@ -1442,6 +1451,80 @@
 		        link.click();
 		        URL.revokeObjectURL(url);
 		    });
+
+			
+			function wrapGalleryWithMap(rawSiteid, containerSelector) {
+			  containerSelector = containerSelector || '.overlay-content';
+			  try {
+			    var overlay = document.querySelector(containerSelector);
+			    if (!overlay) return;
+			    if (overlay.__mapWrapped) return; // safe to call multiple times
+			
+			    // create nodes
+			    var wrapper = document.createElement('div'); wrapper.className = 'gallery-split';
+			    var left = document.createElement('div'); left.className = 'gallery-left';
+			    var iframe = document.createElement('iframe'); iframe.id = 'mapFrame';
+			    iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+			    iframe.src = rawSiteid ? 'https://nokiaqtd.github.io/map?siteid=' + encodeURIComponent(rawSiteid) : 'about:blank';
+			    left.appendChild(iframe);
+			
+			    var resizer = document.createElement('div'); resizer.id = 'galleryResizer';
+			    var right = document.createElement('div'); right.className = 'gallery-right';
+			
+			    // move existing overlay children into right (non-destructive)
+			    while (overlay.firstChild) { right.appendChild(overlay.firstChild); }
+			
+			    // assemble and insert
+			    wrapper.appendChild(left);
+			    wrapper.appendChild(resizer);
+			    wrapper.appendChild(right);
+			    overlay.appendChild(wrapper);
+			    overlay.__mapWrapped = true;
+			
+			    // resizer (mouse + touch)
+			    (function () {
+			      var startX = 0, startW = 0;
+			      function onMove(e) {
+			        var clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+			        var parentW = wrapper.getBoundingClientRect().width;
+			        var dx = clientX - startX;
+			        var newW = startW + dx;
+			        if (newW < 200) newW = 200;
+			        if (newW > parentW - 200) newW = parentW - 200;
+			        left.style.width = newW + 'px';
+			        right.style.width = (parentW - newW - 8) + 'px';
+			      }
+			      function onUp() {
+			        document.removeEventListener('mousemove', onMove, true);
+			        document.removeEventListener('mouseup', onUp, true);
+			        document.removeEventListener('touchmove', onMove, true);
+			        document.removeEventListener('touchend', onUp, true);
+			      }
+			      resizer.addEventListener('mousedown', function (e) {
+			        startX = e.clientX;
+			        startW = left.getBoundingClientRect().width;
+			        document.addEventListener('mousemove', onMove, true);
+			        document.addEventListener('mouseup', onUp, true);
+			        e.preventDefault();
+			      }, false);
+			      resizer.addEventListener('touchstart', function (e) {
+			        startX = e.touches[0].clientX;
+			        startW = left.getBoundingClientRect().width;
+			        document.addEventListener('touchmove', onMove, true);
+			        document.addEventListener('touchend', onUp, true);
+			        e.preventDefault();
+			      }, false);
+			    })();
+			
+			    // expose for debugging
+			    window.__wrappedGallery = { wrapper: wrapper, iframe: iframe, right: right, left: left };
+			  } catch (err) {
+			    /* fail silently but log for dev */
+			    if (window.console) console.error('wrapGalleryWithMap error', err);
+			  }
+			}			
+			wrapGalleryWithMap(rawSiteid);
+			
 		}
 		
 
