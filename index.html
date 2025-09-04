@@ -557,7 +557,7 @@
 
 	<style>
 	  .azmt-input {
-	    display: none;               /* hidden by default */
+/* 	    display: none;              */
 	    box-sizing: content-box;     /* we size by ch units */
 	    padding: 6px;
 	    font-size: 13px;
@@ -1277,12 +1277,12 @@
 			      });
 			    });
 								  
-				// after populating values from server:
-				attachResizers(['inputyx','inputaz1','inputaz2','inputaz3','inputaz4',
-				               'inputmt1','inputmt2','inputmt3','inputmt4']);
+				// // after populating values from server:
+				// attachResizers(['inputyx','inputaz1','inputaz2','inputaz3','inputaz4',
+				//                'inputmt1','inputmt2','inputmt3','inputmt4']);
 				
-				// reveal inputs (shows only inputs that have non-empty value)
-				revealInputs(newApply); 
+				// // reveal inputs (shows only inputs that have non-empty value)
+				// revealInputs(newApply); 
 								  
 				  
 			    // restore apply button to ready state
@@ -1291,7 +1291,7 @@
 				  applyBtn.style.backgroundColor = origApplyBg;
 				  applyBtn.style.cursor = origApplyCursor;
 				  applyBtn.textContent = origApplyText;
-				  revealInputs(newApply);
+				  // revealInputs(newApply);
 			    }
 			
 			    // APPLY button handler: send update request to GAS
