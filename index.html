@@ -815,7 +815,7 @@
 
 		  var iframe = document.createElement('iframe');
 		  iframe.id = 'persistentMapFrame';
-		  iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+		  iframe.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 		  iframe.style.width = '100%';
 		  iframe.style.height = '100%';
 		  iframe.style.border = '0';
@@ -1852,7 +1852,7 @@
 					persistent.style.display = 'none';
 					persistent.style.width = '100%';
 					persistent.style.height = '100%';
-					persistent.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+					persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 					// load base map once (no site param) — created only once
 					persistent.src = 'https://nokiaqtd.github.io/map';
 					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
