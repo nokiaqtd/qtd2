@@ -703,6 +703,136 @@
 
     <script>
 
+// Auto-fit helper (ES5). Paste once in your script (global scope).
+		(function () {
+		  if (window.__qtdMapAutoFit) return;
+		  window.__qtdMapAutoFit = {
+			state: null
+		  };
+
+		  function measureAndShow(target, siteid) {
+			try {
+			  var r = target.getBoundingClientRect();
+			  var w = Math.max(1, Math.round(r.width));
+			  var h = Math.max(1, Math.round(r.height));
+			  window.__qtdPersistentMap.showAtRect({
+				left: Math.round(r.left),
+				top: Math.round(r.top),
+				width: w,
+				height: h
+			  }, siteid);
+			} catch (e) { console.warn('measureAndShow failed', e); }
+		  }
+
+		  window.startMapAutoFit = function (targetEl, siteid) {
+			try {
+			  if (!targetEl || !window.__qtdPersistentMap) return;
+			  // stop previous if any
+			  window.stopMapAutoFit();
+
+			  // immediate show
+			  measureAndShow(targetEl, siteid);
+
+			  var ro = null, mo = null, onResize = null;
+
+			  // ResizeObserver if available
+			  if (typeof window.ResizeObserver === 'function') {
+				ro = new ResizeObserver(function () {
+				  // batch layout reads
+				  requestAnimationFrame(function () { measureAndShow(targetEl, siteid); });
+				});
+				try { ro.observe(targetEl); } catch (e) { ro = null; }
+			  } else {
+				// fallback: window resize
+				onResize = function () { requestAnimationFrame(function () { measureAndShow(targetEl, siteid); }); };
+				window.addEventListener('resize', onResize);
+			  }
+
+			  // MutationObserver to detect subtree/content changes (helps older browsers)
+			  try {
+				if (typeof window.MutationObserver === 'function') {
+				  mo = new MutationObserver(function () {
+					requestAnimationFrame(function () { measureAndShow(targetEl, siteid); });
+				  });
+				  mo.observe(targetEl, { childList: true, subtree: true, attributes: true });
+				}
+			  } catch (e) { mo = null; }
+
+			  window.__qtdMapAutoFit.state = { target: targetEl, ro: ro, mo: mo, onResize: onResize };
+			} catch (err) { console.warn('startMapAutoFit error', err); }
+		  };
+
+		  window.stopMapAutoFit = function () {
+			try {
+			  var s = window.__qtdMapAutoFit.state;
+			  if (!s) return;
+			  if (s.ro && typeof s.ro.disconnect === 'function') try { s.ro.disconnect(); } catch (e) {}
+			  if (s.mo && typeof s.mo.disconnect === 'function') try { s.mo.disconnect(); } catch (e) {}
+			  if (s.onResize) try { window.removeEventListener('resize', s.onResize); } catch (e) {}
+			  window.__qtdMapAutoFit.state = null;
+			} catch (err) { console.warn('stopMapAutoFit error', err); }
+		  };
+		})();
+
+
+		(function ensurePersistentMapOnce() {
+		  if (window.__qtdPersistentMap) return;
+		  // create holder outside overlay so overlay DOM swaps never touch iframe
+		  var holder = document.createElement('div');
+		  holder.id = 'qtd-persistent-map-holder';
+		  holder.style.position = 'fixed';
+		  holder.style.left = '0px';
+		  holder.style.top = '0px';
+		  holder.style.width = '0px';
+		  holder.style.height = '0px';
+		  holder.style.zIndex = '9998';
+		  holder.style.display = 'none';
+		  holder.style.background = 'transparent';
+		  // append immediately
+		  (document.body || document.documentElement).appendChild(holder);
+
+		  var iframe = document.createElement('iframe');
+		  iframe.id = 'persistentMapFrame';
+		  iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+		  iframe.style.width = '100%';
+		  iframe.style.height = '100%';
+		  iframe.style.border = '0';
+		  // load base map once (do not change src later)
+		  iframe.src = 'https://nokiaqtd.github.io/map';
+		  // optional ready flag
+		  iframe.addEventListener('load', function () {
+			iframe.dataset.ready = '1';
+			try { console.debug('persistentMapFrame loaded (once):', iframe.src); } catch (e) {}
+		  }, false);
+
+		  holder.appendChild(iframe);
+
+		  // public API to show/hide and set site via postMessage
+		  window.__qtdPersistentMap = {
+			holder: holder,
+			iframe: iframe,
+			showAtRect: function (rect, siteid) {
+			  // rect: {left, top, width, height} in viewport coords
+			  holder.style.left = (rect.left | 0) + 'px';
+			  holder.style.top = (rect.top | 0) + 'px';
+			  holder.style.width = (rect.width | 0) + 'px';
+			  holder.style.height = (rect.height | 0) + 'px';
+			  holder.style.zIndex = 9998;
+			  holder.style.display = 'block';
+			  try {
+				if (iframe.contentWindow && typeof iframe.contentWindow.postMessage === 'function') {
+				  iframe.contentWindow.postMessage({ type: 'setSite', siteid: siteid }, '*');
+				  iframe.dataset.lastSite = siteid || '';
+				}
+			  } catch (e) { console.warn('postMessage failed', e); }
+			},
+			hide: function () {
+			  holder.style.display = 'none';
+			}
+		  };
+		})();
+
+
 		function autoResizeInput(input) {
 		  // +1 so it never fully collapses
 		  input.style.width = (input.value.length + 1) + "ch";
@@ -1047,11 +1177,24 @@
 		</div>`;
 		    });
 		
-		    document.querySelector(".overlay-content").innerHTML = template
-		      .replace("{site}", placemarkName)
-		      .replace("{slides}", slidesHTML)
-		      .replace("{thumbnails}", thumbnailsHTML);
-		
+
+			// safer DOM replace (no moving/attaching iframe here)
+			var overlayEl = document.querySelector('.overlay-content');
+			if (!overlayEl) {
+			  console.warn('createGalery: overlay-content not found');
+			} else {
+			  var htmlText = template
+				.replace("{site}", placemarkName)
+				.replace("{slides}", slidesHTML)
+				.replace("{thumbnails}", thumbnailsHTML);
+			  var fragment = document.createRange().createContextualFragment(htmlText);
+			  overlayEl.replaceChildren(fragment);
+			  console.debug('overlay-content replaced via fragment for', placemarkName);
+			  // NOTE: we no longer move or touch persistentMapFrame here. positioning is done by wrapGalleryWithMap.
+			}
+			
+
+
 		    // 2. Lookup in updatedMixed for coordinates & az entries
 		    const row = updatedMixed.find(r => r[0] === rawSiteid) || [];
 		    const [ , longitude = "", latitude = "", ...azPairs ] = row;
@@ -1304,6 +1447,14 @@
 				  applyBtn.style.cursor = origApplyCursor;
 				  applyBtn.textContent = origApplyText;
 				  // revealInputs(newApply);
+				  
+					// after you've set all .azmt-input values
+					var inputs = document.querySelectorAll('.azmt-input');
+					for (var i = 0; i < inputs.length; i++) {
+					  var e = document.createEvent('Event');
+					  e.initEvent('input', true, true);
+					  inputs[i].dispatchEvent(e);
+					}				  
 			    }
 			
 
@@ -1556,35 +1707,7 @@
 		        URL.revokeObjectURL(url);
 		    });
 
-			<!-- add persistent iframe (create once and keep hidden on body) -->
-			(function ensurePersistentMap() {
-			  if (document.getElementById('persistentMapFrame')) return;
 
-			  function createPersistent() {
-				const p = document.createElement('iframe');
-				p.id = 'persistentMapFrame';
-				p.style.display = 'none';
-				p.style.width = '100%';
-				p.style.height = '100%';
-				p.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
-				p.src = 'https://nokiaqtd.github.io/map'; // base map load once
-
-				// mark ready when load fires
-				p.addEventListener('load', function () {
-				  p.dataset.ready = '1';
-				  // optional debug: console.log('persistentMapFrame loaded');
-				}, { once: true });
-
-				// attach to body (ensures it's not removed when overlay.innerHTML changes)
-				(document.body || document.documentElement).appendChild(p);
-			  }
-
-			  if (document.body) {
-				createPersistent();
-			  } else {
-				document.addEventListener('DOMContentLoaded', createPersistent, { once: true });
-			  }
-			})();
 			
 			function wrapGalleryWithMap(rawSiteid, containerSelector) {
 			  containerSelector = containerSelector || '.overlay-content';
@@ -1617,9 +1740,9 @@
 				var persistent = document.getElementById('persistentMapFrame');
 				if (persistent) {
 				  mapNode = persistent;
-				  // make visible and move into left (moving node does not reload iframe)
-				  mapNode.style.display = '';
-				  left.appendChild(mapNode);
+
+					console.debug('wrapGalleryWithMap: attaching persistent map into gallery (site=', rawSiteid, ')');
+					mapNode.dataset.lastAttached = Date.now();
 
 				  // helper to safely attempt postMessage
 				  function tryPostMessageOnce() {
@@ -1635,42 +1758,59 @@
 					return false;
 				  }
 
-				  // If iframe is already ready, send immediately
-				  if (!tryPostMessageOnce()) {
-					// wait for load event, then try once
-					var posted = false;
-					var onLoad = function () {
-					  if (!posted) {
+					// If postMessage didn't succeed immediately, wait for the persistent iframe's load and try again.
+					// IMPORTANT: do NOT change mapNode.src or create a short-lived iframe — that causes reloads.
+					if (!tryPostMessageOnce()) {
+					  var onLoad = function () {
 						tryPostMessageOnce();
-						posted = true;
-					  }
-					  mapNode.removeEventListener('load', onLoad);
-					};
-					mapNode.addEventListener('load', onLoad);
+						mapNode.removeEventListener('load', onLoad);
+					  };
+					  mapNode.addEventListener('load', onLoad);
+					}
+					// (no else branch creating a new iframe here — we must always reuse persistentMapFrame)
 
-					// fallback: if no postMessage support or not ready within X ms, change src (force reload)
-					setTimeout(function () {
-					  if (!posted) {
-						try {
-						  if (rawSiteid) {
-							var newSrc = 'https://nokiaqtd.github.io/map';
-							if (mapNode.src !== newSrc) mapNode.src = newSrc;
-						  }
-						} catch (e) {
-						  console.warn('fallback src change failed', e);
-						}
-					  }
-					}, 800); // 800ms fallback — tweak if you want faster/slower
-				  }
 				} else {
-				  // fallback: create new iframe as your original behavior
-				  var iframe = document.createElement('iframe');
-				  iframe.id = 'mapFrame';
-				  iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
-				  iframe.src = rawSiteid ? 'https://nokiaqtd.github.io/map' : 'about:blank';
-				  left.appendChild(iframe);
-				  mapNode = iframe;
+				  // --- Minimal change: DON'T create a short-lived iframe here ---
+				  // Instead, try to reuse/create a persistent iframe so it won't reload repeatedly.
+				  var persistent = document.getElementById('persistentMapFrame');
+
+				  // If persistent iframe does not yet exist (rare), create it synchronously once.
+				  if (!persistent) {
+					persistent = document.createElement('iframe');
+					persistent.id = 'persistentMapFrame';
+					persistent.style.display = 'none';
+					persistent.style.width = '100%';
+					persistent.style.height = '100%';
+					persistent.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+					// load base map once (no site param) — created only once
+					persistent.src = 'https://nokiaqtd.github.io/map';
+					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
+					(document.body || document.documentElement).appendChild(persistent);
+				  }
+
+				  // Use the persistent iframe as the map node and move it into the left pane.
+				  mapNode = persistent;
+
+
+
+					console.debug('wrapGalleryWithMap: attaching persistent map into gallery (site=', rawSiteid, ')');
+					mapNode.dataset.lastAttached = Date.now();
+
+				  // Attempt to instruct the map to switch site via postMessage (non-reloading).
+				  try {
+					if (mapNode.contentWindow && typeof mapNode.contentWindow.postMessage === 'function') {
+					  mapNode.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
+					  mapNode.dataset.lastSite = rawSiteid || '';
+					} else {
+					  // If postMessage not yet available, we do nothing here (no src change).
+					  // The persistent iframe will remain loaded and available instantly on next open.
+					  console.warn('persistent iframe present but contentWindow/postMessage not ready yet');
+					}
+				  } catch (err) {
+					console.warn('postMessage to persistent iframe failed', err);
+				  }
 				}
+
 
 
 
@@ -1713,6 +1853,18 @@
 				wrapper.appendChild(resizer);
 				wrapper.appendChild(right);
 				overlay.appendChild(wrapper);
+
+				// --- position the fixed holder AFTER wrapper is in DOM ---
+				// use requestAnimationFrame so layout is computed before measuring
+				if (window.__qtdPersistentMap && typeof window.__qtdPersistentMap.showAtRect === 'function') {
+
+					startMapAutoFit(left, rawSiteid);
+
+				} else {
+				  // fallback: if holder not ready, we leave iframe hidden; it will be positioned when available
+				  console.warn('wrapGalleryWithMap: qtdPersistentMap not available at append time');
+				}
+
 
 				if (footer.childNodes.length) overlay.appendChild(footer);
 
@@ -1773,15 +1925,9 @@
 		  lowerdiv.style.transition = "opacity 0.5s 0.5s";
 		  lowerdiv.style.opacity = "1";
 
-		  // if persistent iframe is inside overlay, move it back to body and hide it
-		  const p = document.getElementById('persistentMapFrame');
-		  if (p) {
-			try {
-			  p.style.display = 'none';
-			  // append to body to ensure it is not removed by overlay.innerHTML clearing
-			  document.body.appendChild(p);
-			} catch (e) { console.warn('closeNav: move persistent iframe failed', e); }
-		  }
+			stopMapAutoFit();
+			window.__qtdPersistentMap.hide();
+
 		}
 
 
@@ -2439,7 +2585,7 @@
 	    document.body.style.overflow = prevOverflow || '';
 	    document.removeEventListener('keydown', keyHandler, true);
 	    // small delay so any immediate handlers (inject JSONP / setCookie) run, then reload
-	    setTimeout(function () { try { location.reload(); } catch (e) { /* ignore */ } }, 220);
+	    //setTimeout(function () { try { location.reload(); } catch (e) { /* ignore */ } }, 220);
 	  }
 	
 	  save.addEventListener('click', function () { closeAndCleanup(collectSelected()); });
