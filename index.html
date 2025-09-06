@@ -855,6 +855,143 @@
 		})();
 
 
+		// persistent gallery resizer (percentage-based) — ES5
+		(function () {
+		  var STORAGE_KEY = 'qtd.galleryResizer.v1.pct';
+		  var LEFT_SEL = '.gallery-left';        // change if needed
+		  var RESIZER_SEL = '.gallery-resizer';  // change if needed
+		  var DEFAULT_PCT = 50;                  // default % of parent width (e.g. 30%)
+		  var MIN_PX = 120;                      // minimum px when applied
+		  var DEBOUNCE_MS = 180;
+		
+		  function readStored() {
+		    try {
+		      var s = localStorage.getItem(STORAGE_KEY);
+		      if (!s) return null;
+		      return JSON.parse(s);
+		    } catch (e) { return null; }
+		  }
+		  function writeStored(obj) {
+		    try {
+		      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+		    } catch (e) { /* ignore */ }
+		  }
+		
+		  // compute base width (parent container width) in px
+		  function getBaseWidth(leftEl) {
+		    try {
+		      if (!leftEl) return window.innerWidth || document.documentElement.clientWidth;
+		      var parent = leftEl.parentNode;
+		      if (parent && parent.getBoundingClientRect) {
+		        var br = parent.getBoundingClientRect();
+		        if (br && br.width > 0) return br.width;
+		      }
+		    } catch (e) {}
+		    return window.innerWidth || document.documentElement.clientWidth;
+		  }
+		
+		  // apply percent by converting to px and clamping
+		  function applyPct(leftEl, pct) {
+		    if (!leftEl || typeof pct !== 'number' || isNaN(pct)) return;
+		    var base = getBaseWidth(leftEl);
+		    var px = Math.round(base * (pct / 100));
+		    // clamp to reasonable bounds
+		    var maxPx = Math.max(200, Math.round(base - 200));
+		    if (px < MIN_PX) px = MIN_PX;
+		    if (px > maxPx) px = maxPx;
+		    leftEl.style.width = px + 'px';
+		  }
+		
+		  // load saved percentage and apply; returns true if saved existed
+		  function loadAndApply() {
+		    var leftEl = document.querySelector(LEFT_SEL);
+		    if (!leftEl) return false;
+		    var stored = readStored();
+		    if (stored && typeof stored.pct === 'number') {
+		      applyPct(leftEl, stored.pct);
+		      return true;
+		    }
+		    // apply default percent
+		    applyPct(leftEl, DEFAULT_PCT);
+		    return false;
+		  }
+		
+		  // save current percent (rounded to 2 decimals)
+		  function saveNow() {
+		    var leftEl = document.querySelector(LEFT_SEL);
+		    if (!leftEl) return;
+		    var w = leftEl.getBoundingClientRect().width;
+		    var base = getBaseWidth(leftEl);
+		    if (!(base > 0)) return;
+		    var pct = (w / base) * 100;
+		    // round to 2 decimals
+		    pct = Math.round(pct * 100) / 100;
+		    writeStored({ pct: pct, savedAt: Date.now() });
+		  }
+		
+		  // debounce
+		  var saveTimer = null;
+		  function scheduleSave() {
+		    try {
+		      if (saveTimer) clearTimeout(saveTimer);
+		      saveTimer = setTimeout(function () {
+		        saveTimer = null;
+		        saveNow();
+		      }, DEBOUNCE_MS);
+		    } catch (e) { saveNow(); }
+		  }
+		
+		  // attach observers & interaction end listeners
+		  function attachObservers() {
+		    var leftEl = document.querySelector(LEFT_SEL);
+		    var resizerEl = document.querySelector(RESIZER_SEL);
+		    if (!leftEl) return;
+		
+		    var onInteractionEnd = function () { scheduleSave(); };
+		
+		    document.addEventListener('pointerup', onInteractionEnd);
+		    document.addEventListener('mouseup', onInteractionEnd);
+		    document.addEventListener('touchend', onInteractionEnd);
+		
+		    try {
+		      if (typeof window.ResizeObserver === 'function') {
+		        var ro = new ResizeObserver(function () {
+		          scheduleSave();
+		        });
+		        try { ro.observe(leftEl); } catch (e) {}
+		      } else {
+		        window.addEventListener('resize', scheduleSave);
+		      }
+		    } catch (e2) { window.addEventListener('resize', scheduleSave); }
+		
+		    if (resizerEl) {
+		      resizerEl.addEventListener('pointerup', onInteractionEnd);
+		      resizerEl.addEventListener('mouseup', onInteractionEnd);
+		      resizerEl.addEventListener('touchend', onInteractionEnd);
+		    }
+		  }
+		
+		  function init() {
+		    loadAndApply();
+		    attachObservers();
+		  }
+		
+		  if (document.readyState === 'loading') {
+		    document.addEventListener('DOMContentLoaded', init);
+		  } else {
+		    init();
+		  }
+		
+		  // debug helpers
+		  window.qtdGalleryResizer = {
+		    saveNow: saveNow,
+		    loadAndApply: loadAndApply,
+		    scheduleSave: scheduleSave,
+		    STORAGE_KEY: STORAGE_KEY
+		  };
+		})();
+		
+				
 		function autoResizeInput(input) {
 		  // +1 so it never fully collapses
 		  input.style.width = (input.value.length + 1) + "ch";
