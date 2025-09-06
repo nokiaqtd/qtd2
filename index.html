@@ -578,6 +578,54 @@
 		.gallery-left iframe{width:100%;height:100%;border:0;display:block}
 		#galleryResizer{width:8px;cursor:col-resize;background:rgba(0,0,0,0.06)}
 		.gallery-right{flex:1 1 0;min-width:300px;overflow:auto}
+		/* footer area below the split that will hold caption-container + thumbnails */
+		.gallery-bottom { margin-top: 8px; padding: 6px 0; width: 100%; box-sizing: border-box; }
+
+
+		/* ---- QTD toaster (top-center) ---- */
+		#qtd-toast {
+		  position: fixed;
+		  top: 12px;
+		  left: 50%;
+		  transform: translateX(-50%) translateY(-200%);
+		  z-index: 99999;
+		  min-width: 240px;
+		  max-width: 90vw;
+		  padding: 12px 18px;
+		  border-radius: 10px;
+		  color: white;
+		  font-weight: 600;
+		  text-align: center;
+		  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+		  opacity: 0;
+		  pointer-events: none;
+		  will-change: transform, opacity;
+		}
+
+		/* success / error colours */
+		#qtd-toast.qtd-success { background: linear-gradient(180deg, #29a745, #22863a); }
+		#qtd-toast.qtd-error   { background: linear-gradient(180deg, #d64545, #b33434); }
+
+		/* entrance animation (drop with soft elastic/overshoot) */
+		@keyframes qtd-toast-drop {
+		  0%   { transform: translateX(-50%) translateY(-220%) scale(0.95); opacity: 0; }
+		  60%  { transform: translateX(-50%) translateY(10px) scale(1.03); opacity: 1; }
+		  80%  { transform: translateX(-50%) translateY(-6px) scale(0.995); opacity: 1; }
+		  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+		}
+
+		/* hide animation: move up and fade out */
+		@keyframes qtd-toast-upfade {
+		  0%   { transform: translateX(-50%) translateY(0); opacity: 1; }
+		  100% { transform: translateX(-50%) translateY(-48px); opacity: 0; }
+		}
+
+		/* utility classes applied from JS */
+		#qtd-toast.qtd-show { animation: qtd-toast-drop 700ms cubic-bezier(.22,1.4,.33,1) forwards; pointer-events:auto; }
+		#qtd-toast.qtd-hide { animation: qtd-toast-upfade 700ms ease-in forwards; pointer-events:none; }
+
+		/* small text wrap/tidy */
+		#qtd-toast .qtd-msg { display:block; font-size:14px; line-height:1.2; word-break:break-word; white-space:normal; }
 
 			
 	</style>
@@ -767,7 +815,7 @@
                 searchResult.innerHTML = "\nSearching.. <i>" + duration + " sec</i>";
             }
 
-            // alert("Searching...");
+            
 
 
 
@@ -899,7 +947,7 @@
                     console.error("Error:", error);
                     // Handle errors if the request fails
                 });
-            // alert("Searching done...");
+            
 
         }
 
@@ -1258,6 +1306,62 @@
 				  // revealInputs(newApply);
 			    }
 			
+
+				// ---- toaster helper: showToastAndClose(message, success) ----
+				function showToastAndClose(message, success) {
+				  // reuse existing toast element if present
+				  let toast = document.getElementById('qtd-toast');
+				  if (!toast) {
+					toast = document.createElement('div');
+					toast.id = 'qtd-toast';
+					toast.innerHTML = '<span class="qtd-msg"></span>';
+					document.body.appendChild(toast);
+				  }
+				  const msgEl = toast.querySelector('.qtd-msg');
+				  msgEl.textContent = message || '';
+
+				  // apply classes
+				  toast.classList.remove('qtd-success','qtd-error','qtd-show','qtd-hide');
+				  toast.classList.add(success ? 'qtd-success' : 'qtd-error');
+
+				  // force reflow then start entrance animation
+				  void toast.offsetWidth;
+				  toast.classList.add('qtd-show');
+
+				  // after 3s visible, start hide animation
+				  const visibleMs = 3000;
+				  // clear any previous timers stored on element
+				  if (toast._qtdTimer) { clearTimeout(toast._qtdTimer); toast._qtdTimer = null; }
+				  toast._qtdTimer = setTimeout(() => {
+					toast.classList.remove('qtd-show');
+					toast.classList.add('qtd-hide');
+					// when hide animation completes, remove/hide then trigger closebtn
+					function onAnimEnd(ev) {
+					  if (ev && ev.target !== toast) return;
+					  toast.removeEventListener('animationend', onAnimEnd);
+					  // remove element from DOM to keep things clean (or keep it hidden for reuse)
+					  try { toast.parentNode && toast.parentNode.removeChild(toast); } catch(e){}
+					  // trigger close button click (if exists)
+					  try {
+						const closeBtn = document.querySelector('.closebtn');
+						if (closeBtn) {
+						  // ensure slight delay so UI has settled
+						  setTimeout(() => { closeBtn.click(); }, 40);
+						} else {
+						  // fallback to calling closeNav() if defined
+						  if (typeof closeNav === 'function') setTimeout(closeNav, 40);
+						}
+					  } catch (err) { console.warn('Toast: could not trigger closebtn', err); }
+					}
+					// listen for animation end
+					toast.addEventListener('animationend', onAnimEnd);
+				  }, visibleMs);
+				}
+
+
+
+
+			
 			    // APPLY button handler: send update request to GAS
 			    if (applyBtn) {
 			      // remove any old listener by cloning node (safe way to remove handlers)
@@ -1317,7 +1421,7 @@
 						  // try parse as JSON, otherwise keep raw text
 						  try {
 						    const parsed = JSON.parse(bodyText);
-						    // pretty-print JSON for the alert/log
+						    
 						    rtext = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
 						  } catch (je) {
 						    rtext = bodyText;
@@ -1332,13 +1436,13 @@
 						// decide success vs failure
 						const trimmed = (rtext || '').toString().trim();
 						if (trimmed === 'ok') {
-						  alert('Update successful');
+						  showToastAndClose('Update successful', true);
 						} else if (trimmed.toLowerCase().startsWith('error:')) {
-						  alert('Update failed: ' + rtext);
+						  showToastAndClose('Update failed: ' + rtext, false);
 						} else {
-						  // backend might return JSON or message - treat non-'ok' as failure (adjust if you want)
-						  alert('Update response: ' + rtext);
+						  showToastAndClose('Update response: ' + rtext, false);
 						}
+
 		
 			
 			          // restore apply button
@@ -1349,7 +1453,7 @@
 			
 			        } catch (e) {
 			          console.log('Update failed: ' + (e && e.message ? e.message : e));
-					  alert('Update failed: ' + (e && e.message ? e.message : e));
+					  showToastAndClose('Update failed: ' + (e && e.message ? e.message : e), false);
 						
 			          // restore apply button on failure
 			          try {
@@ -1452,77 +1556,211 @@
 		        URL.revokeObjectURL(url);
 		    });
 
+			<!-- add persistent iframe (create once and keep hidden on body) -->
+			(function ensurePersistentMap() {
+			  if (document.getElementById('persistentMapFrame')) return;
+
+			  function createPersistent() {
+				const p = document.createElement('iframe');
+				p.id = 'persistentMapFrame';
+				p.style.display = 'none';
+				p.style.width = '100%';
+				p.style.height = '100%';
+				p.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+				p.src = 'https://nokiaqtd.github.io/map'; // base map load once
+
+				// mark ready when load fires
+				p.addEventListener('load', function () {
+				  p.dataset.ready = '1';
+				  // optional debug: console.log('persistentMapFrame loaded');
+				}, { once: true });
+
+				// attach to body (ensures it's not removed when overlay.innerHTML changes)
+				(document.body || document.documentElement).appendChild(p);
+			  }
+
+			  if (document.body) {
+				createPersistent();
+			  } else {
+				document.addEventListener('DOMContentLoaded', createPersistent, { once: true });
+			  }
+			})();
 			
 			function wrapGalleryWithMap(rawSiteid, containerSelector) {
 			  containerSelector = containerSelector || '.overlay-content';
 			  try {
-			    var overlay = document.querySelector(containerSelector);
-			    if (!overlay) return;
-			    if (overlay.__mapWrapped) return; // safe to call multiple times
-			
-			    // create nodes
-			    var wrapper = document.createElement('div'); wrapper.className = 'gallery-split';
-			    var left = document.createElement('div'); left.className = 'gallery-left';
-			    var iframe = document.createElement('iframe'); iframe.id = 'mapFrame';
-			    iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
-			    iframe.src = rawSiteid ? 'https://nokiaqtd.github.io/map?siteid=' + encodeURIComponent(rawSiteid) : 'about:blank';
-			    left.appendChild(iframe);
-			
-			    var resizer = document.createElement('div'); resizer.id = 'galleryResizer';
-			    var right = document.createElement('div'); right.className = 'gallery-right';
-			
-			    // move existing overlay children into right (non-destructive)
-			    while (overlay.firstChild) { right.appendChild(overlay.firstChild); }
-			
-			    // assemble and insert
-			    wrapper.appendChild(left);
-			    wrapper.appendChild(resizer);
-			    wrapper.appendChild(right);
-			    overlay.appendChild(wrapper);
-			    overlay.__mapWrapped = true;
-			
-			    // resizer (mouse + touch)
-			    (function () {
-			      var startX = 0, startW = 0;
-			      function onMove(e) {
-			        var clientX = (e.touches ? e.touches[0].clientX : e.clientX);
-			        var parentW = wrapper.getBoundingClientRect().width;
-			        var dx = clientX - startX;
-			        var newW = startW + dx;
-			        if (newW < 200) newW = 200;
-			        if (newW > parentW - 200) newW = parentW - 200;
-			        left.style.width = newW + 'px';
-			        right.style.width = (parentW - newW - 8) + 'px';
-			      }
-			      function onUp() {
-			        document.removeEventListener('mousemove', onMove, true);
-			        document.removeEventListener('mouseup', onUp, true);
-			        document.removeEventListener('touchmove', onMove, true);
-			        document.removeEventListener('touchend', onUp, true);
-			      }
-			      resizer.addEventListener('mousedown', function (e) {
-			        startX = e.clientX;
-			        startW = left.getBoundingClientRect().width;
-			        document.addEventListener('mousemove', onMove, true);
-			        document.addEventListener('mouseup', onUp, true);
-			        e.preventDefault();
-			      }, false);
-			      resizer.addEventListener('touchstart', function (e) {
-			        startX = e.touches[0].clientX;
-			        startW = left.getBoundingClientRect().width;
-			        document.addEventListener('touchmove', onMove, true);
-			        document.addEventListener('touchend', onUp, true);
-			        e.preventDefault();
-			      }, false);
-			    })();
-			
-			    // expose for debugging
-			    window.__wrappedGallery = { wrapper: wrapper, iframe: iframe, right: right, left: left };
+				var overlay = document.querySelector(containerSelector);
+				if (!overlay) return;
+				// only skip if we've wrapped and the wrapper element is still present.
+				// if the wrapper was removed (innerHTML replaced) we must re-run the wrapping.
+				if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
+				  return; // already wrapped and wrapper still in DOM
+				}
+				// helper: find descendant (prefer direct children first)
+				function findDescendant(parent, selector) {
+				  // prefer direct children
+				  for (var i = 0; i < parent.children.length; i++) {
+					if (parent.children[i].matches && parent.children[i].matches(selector)) return parent.children[i];
+				  }
+				  // fallback to any descendant
+				  return parent.querySelector(selector);
+				}
+
+				// create wrapper regions
+				var wrapper = document.createElement('div'); wrapper.className = 'gallery-split';
+				var left = document.createElement('div'); left.className = 'gallery-left';
+				var resizer = document.createElement('div'); resizer.id = 'galleryResizer';
+				var right = document.createElement('div'); right.className = 'gallery-right';
+				var footer = document.createElement('div'); footer.className = 'gallery-bottom';
+
+				// reuse persistent iframe if present
+				var persistent = document.getElementById('persistentMapFrame');
+				if (persistent) {
+				  mapNode = persistent;
+				  // make visible and move into left (moving node does not reload iframe)
+				  mapNode.style.display = '';
+				  left.appendChild(mapNode);
+
+				  // helper to safely attempt postMessage
+				  function tryPostMessageOnce() {
+					try {
+					  if (mapNode.contentWindow && typeof mapNode.contentWindow.postMessage === 'function') {
+						mapNode.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
+						mapNode.dataset.lastSite = rawSiteid || '';
+						return true;
+					  }
+					} catch (err) {
+					  console.warn('postMessage attempt failed', err);
+					}
+					return false;
+				  }
+
+				  // If iframe is already ready, send immediately
+				  if (!tryPostMessageOnce()) {
+					// wait for load event, then try once
+					var posted = false;
+					var onLoad = function () {
+					  if (!posted) {
+						tryPostMessageOnce();
+						posted = true;
+					  }
+					  mapNode.removeEventListener('load', onLoad);
+					};
+					mapNode.addEventListener('load', onLoad);
+
+					// fallback: if no postMessage support or not ready within X ms, change src (force reload)
+					setTimeout(function () {
+					  if (!posted) {
+						try {
+						  if (rawSiteid) {
+							var newSrc = 'https://nokiaqtd.github.io/map';
+							if (mapNode.src !== newSrc) mapNode.src = newSrc;
+						  }
+						} catch (e) {
+						  console.warn('fallback src change failed', e);
+						}
+					  }
+					}, 800); // 800ms fallback — tweak if you want faster/slower
+				  }
+				} else {
+				  // fallback: create new iframe as your original behavior
+				  var iframe = document.createElement('iframe');
+				  iframe.id = 'mapFrame';
+				  iframe.allow = 'geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
+				  iframe.src = rawSiteid ? 'https://nokiaqtd.github.io/map' : 'about:blank';
+				  left.appendChild(iframe);
+				  mapNode = iframe;
+				}
+
+
+
+				// find and place the slides container into right
+				var containerNode = findDescendant(overlay, '.container');
+				if (containerNode) {
+				  right.appendChild(containerNode);
+				} else {
+				  // if no .container found, move the first child that is not map, caption or row into right
+				  for (var j = 0; j < overlay.children.length; j++) {
+					var ch = overlay.children[j];
+					if (ch === mapNode) continue;
+					if (ch.classList && (ch.classList.contains('caption-container') || ch.classList.contains('row'))) continue;
+					right.appendChild(ch);
+					break;
+				  }
+				}
+
+				// move caption-container and .row (thumbnails) into footer (under the split)
+				var captionNode = findDescendant(overlay, '.caption-container');
+				if (captionNode) footer.appendChild(captionNode);
+				// prefer the thumbnail row that is a direct child first
+				var rowNode = null;
+				for (var k = 0; k < overlay.children.length; k++) {
+				  if (overlay.children[k].classList && overlay.children[k].classList.contains('row')) { rowNode = overlay.children[k]; break; }
+				}
+				if (!rowNode) rowNode = findDescendant(overlay, '.row');
+				if (rowNode) footer.appendChild(rowNode);
+
+				// any remaining nodes (rare) that are still children of overlay and not map/container/footer items
+				// leave them alone (minimal change) — if you want them in footer, uncomment the loop below.
+				/*
+				while (overlay.firstChild) {
+				  footer.appendChild(overlay.firstChild);
+				}
+				*/
+
+				// assemble and insert
+				wrapper.appendChild(left);
+				wrapper.appendChild(resizer);
+				wrapper.appendChild(right);
+				overlay.appendChild(wrapper);
+
+				if (footer.childNodes.length) overlay.appendChild(footer);
+
+				overlay.__mapWrapped = true;
+
+				// resizer logic (unchanged)
+				(function () {
+				  var startX = 0, startW = 0;
+				  function onMove(e) {
+					var clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+					var parentW = wrapper.getBoundingClientRect().width;
+					var dx = clientX - startX;
+					var newW = startW + dx;
+					if (newW < 200) newW = 200;
+					if (newW > parentW - 200) newW = parentW - 200;
+					left.style.width = newW + 'px';
+					right.style.width = (parentW - newW - 8) + 'px';
+				  }
+				  function onUp() {
+					document.removeEventListener('mousemove', onMove, true);
+					document.removeEventListener('mouseup', onUp, true);
+					document.removeEventListener('touchmove', onMove, true);
+					document.removeEventListener('touchend', onUp, true);
+				  }
+				  resizer.addEventListener('mousedown', function (e) {
+					startX = e.clientX;
+					startW = left.getBoundingClientRect().width;
+					document.addEventListener('mousemove', onMove, true);
+					document.addEventListener('mouseup', onUp, true);
+					e.preventDefault();
+				  }, false);
+				  resizer.addEventListener('touchstart', function (e) {
+					startX = e.touches[0].clientX;
+					startW = left.getBoundingClientRect().width;
+					document.addEventListener('touchmove', onMove, true);
+					document.addEventListener('touchend', onUp, true);
+					e.preventDefault();
+				  }, false);
+				})();
+
+				// expose for debugging
+				window.__wrappedGallery = { wrapper: wrapper, mapNode: mapNode, containerNode: containerNode, footer: footer, left: left, right: right };
 			  } catch (err) {
-			    /* fail silently but log for dev */
-			    if (window.console) console.error('wrapGalleryWithMap error', err);
+				if (window.console) console.error('wrapGalleryWithMap error', err);
 			  }
-			}			
+			}
+
+
 			wrapGalleryWithMap(rawSiteid);
 			
 		}
@@ -1530,11 +1768,22 @@
 
 
 		
-        function closeNav() {
-            document.getElementById("myNav").style.width = "0%";
-            lowerdiv.style.transition = "opacity 0.5s 0.5s";
-            lowerdiv.style.opacity = "1";
-        }
+		function closeNav() {
+		  document.getElementById("myNav").style.width = "0%";
+		  lowerdiv.style.transition = "opacity 0.5s 0.5s";
+		  lowerdiv.style.opacity = "1";
+
+		  // if persistent iframe is inside overlay, move it back to body and hide it
+		  const p = document.getElementById('persistentMapFrame');
+		  if (p) {
+			try {
+			  p.style.display = 'none';
+			  // append to body to ensure it is not removed by overlay.innerHTML clearing
+			  document.body.appendChild(p);
+			} catch (e) { console.warn('closeNav: move persistent iframe failed', e); }
+		  }
+		}
+
 
         document.addEventListener("DOMContentLoaded", function () {
             const images = document.querySelectorAll('.demo');
