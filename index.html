@@ -627,6 +627,28 @@
 		/* small text wrap/tidy */
 		#qtd-toast .qtd-msg { display:block; font-size:14px; line-height:1.2; word-break:break-word; white-space:normal; }
 
+		/* Inputs start hidden and animate into view when caption1 div gets class `qtd-inputs-visible` */
+		#caption1 > div .azmt-input {
+		  display: none;                /* hidden initially */
+		  opacity: 0;
+		  transform: translateY(-6px);
+		  transition: opacity 240ms ease, transform 240ms ease;
+		  pointer-events: none;
+		}
+
+		/* When wrapper gets this class, inputs that are set to display:inline-block (by JS or previous logic)
+		   will animate from the above state into visible state. */
+		#caption1 > div.qtd-inputs-visible .azmt-input {
+		  /* JS will set element.style.display='inline-block' for inputs with value.
+			 The CSS below drives the animation */
+		  opacity: 1;
+		  transform: translateY(0);
+		  pointer-events: auto;
+		}
+
+		/* keep apply button layout unchanged; it sits next to downloadKMLBtn as before */
+		#caption1 > div button { vertical-align: middle; }
+			
 			
 	</style>
 		
@@ -1454,7 +1476,56 @@
 					  var e = document.createEvent('Event');
 					  e.initEvent('input', true, true);
 					  inputs[i].dispatchEvent(e);
-					}				  
+					}		
+
+					// --- reveal: always show certain inputs even if empty, then show other non-empty inputs ---
+					try {
+					  var captionDiv = document.querySelector('#caption1 > div');
+					  if (captionDiv) {
+						captionDiv.classList.add('qtd-inputs-visible');
+
+						// Always-show these inputs even when blank (update IDs if yours differ)
+						var alwaysShowIds = ['inputyx','inputaz1','inputmt1'];
+						for (var j = 0; j < alwaysShowIds.length; j++) {
+						  var id = alwaysShowIds[j];
+						  var elA = document.getElementById(id);
+						  if (elA) {
+							elA.style.display = 'inline-block';
+							try {
+							  var evA = document.createEvent('Event');
+							  evA.initEvent('input', true, true);
+							  elA.dispatchEvent(evA);
+							} catch (eA) {}
+						  }
+						}
+
+						// Then handle all other .azmt-inputs (show only if non-empty)
+						var inputs = captionDiv.querySelectorAll('.azmt-input');
+						for (var i = 0; i < inputs.length; i++) {
+						  var el = inputs[i];
+						  // skip already-handled always-show inputs
+						  var sid = el.id || '';
+						  if (sid === 'inputyx' || sid === 'inputaz1' || sid === 'inputmt1') continue;
+
+						  var has = el.value && String(el.value).trim() !== '';
+						  if (has) {
+							el.style.display = 'inline-block';
+							try {
+							  var ev = document.createEvent('Event');
+							  ev.initEvent('input', true, true);
+							  el.dispatchEvent(ev);
+							} catch (e) {}
+						  } else {
+							el.style.display = 'none';
+						  }
+						}
+
+						// force reflow to reliably kick off transitions
+						void captionDiv.offsetWidth;
+					  }
+					} catch (errReveal) {
+					  console.warn('reveal inputs failed', errReveal);
+					}					
 			    }
 			
 
