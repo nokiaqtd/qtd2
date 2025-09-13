@@ -2194,10 +2194,40 @@ if (trimmed === 'ok') {
 				if (!overlay) return;
 				// only skip if we've wrapped and the wrapper element is still present.
 				// if the wrapper was removed (innerHTML replaced) we must re-run the wrapping.
-				if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
-				  return; // already wrapped and wrapper still in DOM
-				}
-				// helper: find descendant (prefer direct children first)
+
+
+if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
+  try {
+    // try to find the existing left pane in the wrapped gallery
+    var existingLeft = overlay.querySelector('.gallery-left') || overlay.querySelector('.gallery-split .gallery-left');
+    // Preferred API: reposition persistent holder & ask it to show the requested site
+    if (existingLeft && window.__qtdPersistentMap && typeof window.__qtdPersistentMap.showAtRect === 'function') {
+      // reuse startMapAutoFit so size/position are computed consistently
+      try { startMapAutoFit(existingLeft, rawSiteid); } catch (e) {
+        // fallback to direct postMessage if startMapAutoFit fails
+        var pframe = document.getElementById('persistentMapFrame');
+        if (pframe && pframe.contentWindow && typeof pframe.contentWindow.postMessage === 'function') {
+          pframe.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
+          pframe.dataset.lastSite = rawSiteid || '';
+        }
+      }
+    } else {
+      // final fallback: postMessage directly to the persistent iframe if present
+      var pf = document.getElementById('persistentMapFrame');
+      if (pf && pf.contentWindow && typeof pf.contentWindow.postMessage === 'function') {
+        pf.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
+        pf.dataset.lastSite = rawSiteid || '';
+      }
+    }
+  } catch (err) {
+    console.warn('wrapGalleryWithMap: update-on-already-wrapped failed', err);
+  }
+  // still return because the DOM is already wrapped
+  return;
+}
+
+				  
+				  // helper: find descendant (prefer direct children first)
 				function findDescendant(parent, selector) {
 				  // prefer direct children
 				  for (var i = 0; i < parent.children.length; i++) {
