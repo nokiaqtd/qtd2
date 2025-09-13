@@ -1889,56 +1889,74 @@ function attachToLeft(leftEl) {
 			    }
 			
 
-				// ---- toaster helper: showToastAndClose(message, success) ----
-				function showToastAndClose(message, success) {
-				  // reuse existing toast element if present
-				  let toast = document.getElementById('qtd-toast');
-				  if (!toast) {
-					toast = document.createElement('div');
-					toast.id = 'qtd-toast';
-					toast.innerHTML = '<span class="qtd-msg"></span>';
-					document.body.appendChild(toast);
-				  }
-				  const msgEl = toast.querySelector('.qtd-msg');
-				  msgEl.textContent = message || '';
+// REPLACE showToastAndClose(...) with this ES5 function
+function showToast(message, success, closeImmediately) {
+  var toast = document.getElementById('qtd-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'qtd-toast';
+    toast.innerHTML = '<span class="qtd-msg"></span>';
+    document.body.appendChild(toast);
+  }
+  var msgEl = toast.querySelector('.qtd-msg');
+  msgEl.textContent = message || '';
 
-				  // apply classes
-				  toast.classList.remove('qtd-success','qtd-error','qtd-show','qtd-hide');
-				  toast.classList.add(success ? 'qtd-success' : 'qtd-error');
+  // reset classes
+  toast.classList.remove('qtd-success','qtd-error','qtd-show','qtd-hide');
+  toast.classList.add(success ? 'qtd-success' : 'qtd-error');
 
-				  // force reflow then start entrance animation
-				  void toast.offsetWidth;
-				  toast.classList.add('qtd-show');
+  // ensure previous timer cleared
+  if (toast._qtdTimer) { clearTimeout(toast._qtdTimer); toast._qtdTimer = null; }
+  // clear any previous skip flag
+  toast._qtdSkipCloseOnAnimEnd = false;
 
-				  // after 3s visible, start hide animation
-				  const visibleMs = 3000;
-				  // clear any previous timers stored on element
-				  if (toast._qtdTimer) { clearTimeout(toast._qtdTimer); toast._qtdTimer = null; }
-				  toast._qtdTimer = setTimeout(() => {
-					toast.classList.remove('qtd-show');
-					toast.classList.add('qtd-hide');
-					// when hide animation completes, remove/hide then trigger closebtn
-					function onAnimEnd(ev) {
-					  if (ev && ev.target !== toast) return;
-					  toast.removeEventListener('animationend', onAnimEnd);
-					  // remove element from DOM to keep things clean (or keep it hidden for reuse)
-					  try { toast.parentNode && toast.parentNode.removeChild(toast); } catch(e){}
-					  // trigger close button click (if exists)
-					  try {
-						const closeBtn = document.querySelector('.closebtn');
-						if (closeBtn) {
-						  // ensure slight delay so UI has settled
-						  setTimeout(() => { closeBtn.click(); }, 40);
-						} else {
-						  // fallback to calling closeNav() if defined
-						  if (typeof closeNav === 'function') setTimeout(closeNav, 40);
-						}
-					  } catch (err) { console.warn('Toast: could not trigger closebtn', err); }
-					}
-					// listen for animation end
-					toast.addEventListener('animationend', onAnimEnd);
-				  }, visibleMs);
-				}
+  // force reflow then show
+  void toast.offsetWidth;
+  toast.classList.add('qtd-show');
+
+  // if caller wants immediate close, trigger it now (short delay to let UI settle)
+  if (closeImmediately) {
+    try {
+      // mark so onAnimEnd does not re-trigger close
+      toast._qtdSkipCloseOnAnimEnd = true;
+      setTimeout(function () {
+        var closeBtn = document.querySelector('.closebtn');
+        if (closeBtn) {
+          try { closeBtn.click(); } catch (e) { if (typeof closeNav === 'function') closeNav(); }
+        } else {
+          if (typeof closeNav === 'function') closeNav();
+        }
+      }, 40);
+    } catch (e) { /* ignore */ }
+  }
+
+  // after visible time, start hide animation and remove toast on animation-end
+  var visibleMs = 3000;
+  toast._qtdTimer = setTimeout(function () {
+    try {
+      toast.classList.remove('qtd-show');
+      toast.classList.add('qtd-hide');
+    } catch (e) {}
+    function onAnimEnd(ev) {
+      if (ev && ev.target !== toast) return;
+      toast.removeEventListener('animationend', onAnimEnd);
+      try { toast.parentNode && toast.parentNode.removeChild(toast); } catch (e) {}
+      // trigger close only if NOT already closed by immediate-close path
+      try {
+        if (!toast._qtdSkipCloseOnAnimEnd) {
+          var closeBtn2 = document.querySelector('.closebtn');
+          if (closeBtn2) {
+            setTimeout(function(){ try { closeBtn2.click(); } catch(e){ if (typeof closeNav === 'function') closeNav(); } }, 40);
+          } else {
+            if (typeof closeNav === 'function') setTimeout(closeNav, 40);
+          }
+        }
+      } catch (err) { console.warn('Toast: could not trigger closebtn', err); }
+    }
+    toast.addEventListener('animationend', onAnimEnd);
+  }, visibleMs);
+}
+
 
 
 
@@ -2017,13 +2035,16 @@ function attachToLeft(leftEl) {
 						
 						// decide success vs failure
 						const trimmed = (rtext || '').toString().trim();
-						if (trimmed === 'ok') {
-						  showToastAndClose('Update successful', true);
-						} else if (trimmed.toLowerCase().startsWith('error:')) {
-						  showToastAndClose('Update failed: ' + rtext, false);
-						} else {
-						  showToastAndClose('Update response: ' + rtext, false);
-						}
+if (trimmed === 'ok') {
+  // success: show toast AND close immediately (do not wait for toast hide)
+  showToast('Update successful', true, true);
+} else if (trimmed.toLowerCase().startsWith('error:')) {
+  // failure: show error toast and DO NOT close; let user retry
+  showToast('Update failed: ' + rtext, false, false);
+} else {
+  showToast('Update response: ' + rtext, false, false);
+}
+
 
 		
 			
@@ -2035,7 +2056,7 @@ function attachToLeft(leftEl) {
 			
 			        } catch (e) {
 			          console.log('Update failed: ' + (e && e.message ? e.message : e));
-					  showToastAndClose('Update failed: ' + (e && e.message ? e.message : e), false);
+					  showToast('Update failed: ' + (e && e.message ? e.message : e), false, false);
 						
 			          // restore apply button on failure
 			          try {
