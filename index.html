@@ -2056,6 +2056,7 @@ function attachToLeft(leftEl) {
 
 			
 			function wrapGalleryWithMap(rawSiteid, containerSelector) {
+				
 			  containerSelector = containerSelector || '.overlay-content';
 			  try {
 				var overlay = document.querySelector(containerSelector);
@@ -2078,7 +2079,7 @@ function attachToLeft(leftEl) {
 				// create wrapper regions
 				var wrapper = document.createElement('div'); wrapper.className = 'gallery-split';
 				var left = document.createElement('div'); left.className = 'gallery-left';
-				var resizer = document.createElement('div'); resizer.id = 'galleryResizer';
+				
 				var right = document.createElement('div'); right.className = 'gallery-right';
 				var footer = document.createElement('div'); footer.className = 'gallery-bottom';
 
@@ -2196,7 +2197,7 @@ function attachToLeft(leftEl) {
 
 				// assemble and insert
 				wrapper.appendChild(left);
-				wrapper.appendChild(resizer);
+				
 				wrapper.appendChild(right);
 				overlay.appendChild(wrapper);
 
