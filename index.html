@@ -677,23 +677,30 @@
   transform: translateX(0);
 }
 
-/* Layout so images center and never stretch */
-.gallery-right, .gallery-left {
+/* ---- Paste this into your gallery CSS (replace previous image-related rules) ---- */
+
+/* Make each pane a flex container and prevent overflow from children */
+.gallery-left,
+.gallery-right {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;      /* hide overflow if image smaller */
+  overflow: hidden;    /* hide anything bigger than the pane */
+  max-height: 100vh;   /* don't allow pane to exceed viewport height */
+  min-height: 0;       /* important: lets flex children shrink and avoids overflow */
 }
 
-/* Keep images proportional — never distort */
-.gallery-right img, .gallery-left img {
+/* Constrain images to their pane (never exceed the pane) and preserve aspect ratio */
+.gallery-left img,
+.gallery-right img {
   max-width: 100%;
-  max-height: 100vh;     /* prevent vertical overflow */
+  max-height: 100%;    /* <-- relative to the pane because pane has max-height */
   width: auto;
   height: auto;
-  object-fit: contain;   /* safe fallback in modern browsers */
+  object-fit: contain; /* keep natural aspect ratio */
   display: block;
 }
+
 		
 			
 	</style>
