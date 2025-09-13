@@ -649,7 +649,35 @@
 
 		/* keep apply button layout unchanged; it sits next to downloadKMLBtn as before */
 		#caption1 > div button { vertical-align: middle; }
-			
+
+/* Gutter (vertical resizer) — styled like mdt.html */
+#galleryGutter {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 12px;
+  z-index: 10001;
+  cursor: col-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  display: none;               /* shown only when gallery opened */
+  align-items: center;
+  justify-content: center;
+  transition: background .12s;
+}
+#galleryGutter:hover { background: rgba(0,0,0,0.03); }
+
+/* visible handle in the gutter (elegant centered handle) */
+#galleryGutter .handle {
+  width: 4px;
+  height: 48px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.75);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  transform: translateX(0);
+}
+
+		
 			
 	</style>
 		
@@ -821,7 +849,7 @@
 		  iframe.style.height = '100%';
 		  iframe.style.border = '0';
 		  // load base map once (do not change src later)
-		  iframe.src = 'https://script.google.com/macros/s/AKfycby4GHqthxDIeZDTrbaqB1_VlaPjhjms0RuGL8QVxEXxpgZYrol6Qk2A0FjtnIBEKS3vgA/exec';
+		  iframe.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
 		  // optional ready flag
 		  iframe.addEventListener('load', function () {
 			iframe.dataset.ready = '1';
@@ -2101,7 +2129,7 @@ function attachToLeft(leftEl) {
 					persistent.style.height = '100%';
 					persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 					// load base map once (no site param) — created only once
-					persistent.src = 'https://script.google.com/macros/s/AKfycbyEe0NDV8L3NLw6cOWazscYLtiJo8QeLjztuORcwgs0roZR8cJyK7jZO1lMNfHKm9aq1g/exec';
+					persistent.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
 					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
 					(document.body || document.documentElement).appendChild(persistent);
 				  }
@@ -2188,40 +2216,131 @@ function attachToLeft(leftEl) {
 
 				overlay.__mapWrapped = true;
 
-				// resizer logic (unchanged)
-				(function () {
-				  var startX = 0, startW = 0;
-				  function onMove(e) {
-					var clientX = (e.touches ? e.touches[0].clientX : e.clientX);
-					var parentW = wrapper.getBoundingClientRect().width;
-					var dx = clientX - startX;
-					var newW = startW + dx;
-					if (newW < 200) newW = 200;
-					if (newW > parentW - 200) newW = parentW - 200;
-					left.style.width = newW + 'px';
-					right.style.width = (parentW - newW - 8) + 'px';
-				  }
-				  function onUp() {
-					document.removeEventListener('mousemove', onMove, true);
-					document.removeEventListener('mouseup', onUp, true);
-					document.removeEventListener('touchmove', onMove, true);
-					document.removeEventListener('touchend', onUp, true);
-				  }
-				  resizer.addEventListener('mousedown', function (e) {
-					startX = e.clientX;
-					startW = left.getBoundingClientRect().width;
-					document.addEventListener('mousemove', onMove, true);
-					document.addEventListener('mouseup', onUp, true);
-					e.preventDefault();
-				  }, false);
-				  resizer.addEventListener('touchstart', function (e) {
-					startX = e.touches[0].clientX;
-					startW = left.getBoundingClientRect().width;
-					document.addEventListener('touchmove', onMove, true);
-					document.addEventListener('touchend', onUp, true);
-					e.preventDefault();
-				  }, false);
-				})();
+
+
+// --- replace resizer with a fixed gutter that uses a full-page capture layer (prevents iframe interference)
+(function createGalleryGutter() {
+  try {
+    var gutterId = 'galleryGutter';
+    // remove previous if any
+    var old = document.getElementById(gutterId);
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+
+    var gutter = document.createElement('div');
+    gutter.id = gutterId;
+    gutter.style.display = 'flex';
+    var gutterW = 12;
+    gutter.style.width = gutterW + 'px';
+    // position near the split computed from left pane
+    function placeGutter() {
+      var rect = left.getBoundingClientRect();
+      gutter.style.left = (Math.round(rect.right - Math.floor(gutterW/2))) + 'px';
+      gutter.style.top = (Math.round(rect.top)) + 'px';
+      gutter.style.position = 'fixed';
+      gutter.style.height = (Math.round(rect.height)) + 'px';
+    }
+    // handle element
+    var handle = document.createElement('div');
+    handle.className = 'handle';
+    gutter.appendChild(handle);
+    document.body.appendChild(gutter);
+    placeGutter();
+    gutter.style.display = 'flex';
+
+    // update placement on window resize / layout changes
+    var placeObserver = new ResizeObserver(function () { placeGutter(); });
+    placeObserver.observe(wrapper);
+
+    // drag state
+    var dragging = false;
+    var startX = 0;
+    var startLeftWidth = 0;
+    var dragCapture = null;
+
+    function startDrag(e) {
+      e.preventDefault && e.preventDefault();
+      dragging = true;
+      startX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+      startLeftWidth = left.getBoundingClientRect().width;
+
+      // create full-page transparent capture layer so iframe can't steal mouse events
+      if (!dragCapture) {
+        dragCapture = document.createElement('div');
+        dragCapture.id = 'galleryDragCapture';
+        dragCapture.style.position = 'fixed';
+        dragCapture.style.top = '0';
+        dragCapture.style.left = '0';
+        dragCapture.style.width = '100%';
+        dragCapture.style.height = '100%';
+        dragCapture.style.zIndex = '10002';          // above gutter & overlay
+        dragCapture.style.cursor = 'col-resize';
+        dragCapture.style.background = 'transparent';
+        dragCapture.style.pointerEvents = 'auto';
+        document.body.appendChild(dragCapture);
+      }
+
+      document.addEventListener('mousemove', onMove, false);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('mouseup', stopDrag, false);
+      document.addEventListener('touchend', stopDrag, false);
+
+      gutter.style.background = 'rgba(0,0,0,0.03)';
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      e.preventDefault && e.preventDefault();
+      var clientX = (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
+      var dx = clientX - startX;
+      var parentW = wrapper.getBoundingClientRect().width;
+      var newLeftW = startLeftWidth + dx;
+      // clamp
+      var minLeft = 200;
+      var minRight = 200;
+      if (newLeftW < minLeft) newLeftW = minLeft;
+      if (newLeftW > parentW - minRight) newLeftW = parentW - minRight;
+
+      left.style.width = newLeftW + 'px';
+      right.style.width = (parentW - newLeftW - 8) + 'px';
+
+      // reposition gutter to stay centered between panes
+      placeGutter();
+    }
+
+    function stopDrag() {
+      dragging = false;
+      gutter.style.background = 'transparent';
+      if (dragCapture && dragCapture.parentNode) {
+        dragCapture.parentNode.removeChild(dragCapture);
+        dragCapture = null;
+      }
+      document.removeEventListener('mousemove', onMove, false);
+      document.removeEventListener('touchmove', onMove, { passive: false });
+      document.removeEventListener('mouseup', stopDrag, false);
+      document.removeEventListener('touchend', stopDrag, false);
+
+      // trigger save if your persistent resizer exists
+      if (window.qtdGalleryResizer && typeof window.qtdGalleryResizer.scheduleSave === 'function') {
+        try { window.qtdGalleryResizer.scheduleSave(); } catch (e) {}
+      }
+    }
+
+    gutter.addEventListener('mousedown', startDrag, false);
+    gutter.addEventListener('touchstart', startDrag, { passive: false });
+
+    // make sure gutter is removed when overlay is hidden/closed
+    // (closeNav will remove it too — see next change)
+    // expose a property so debug tools can remove it if needed
+    wrapper.__galleryGutter = gutter;
+
+  } catch (err) {
+    console && console.warn && console.warn('createGalleryGutter error', err);
+  }
+})();
+
+
+
+				  
 
 				// expose for debugging
 				window.__wrappedGallery = { wrapper: wrapper, mapNode: mapNode, containerNode: containerNode, footer: footer, left: left, right: right };
@@ -2267,7 +2386,15 @@ function closeNav() {
 
   // close overlay (this triggers transition)
   var nav = document.getElementById('myNav');
-  if (nav) nav.style.width = '0%';
+  if (nav) 
+  {
+	  nav.style.width = '0%';
+// remove gutter & capture to fully disable dragging when overlay closed
+try {
+  var g = document.getElementById('galleryGutter'); if (g && g.parentNode) g.parentNode.removeChild(g);
+  var dc = document.getElementById('galleryDragCapture'); if (dc && dc.parentNode) dc.parentNode.removeChild(dc);
+} catch (e) {}
+	}
 
   try {
     lowerdiv.style.transition = 'opacity 0.5s 0.5s';
