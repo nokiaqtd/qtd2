@@ -934,7 +934,7 @@
 		  iframe.style.height = '100%';
 		  iframe.style.border = '0';
 		  // load base map once (do not change src later)
-		  iframe.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
+		  iframe.src = 'https://script.google.com/macros/s/AKfycbzRqvHkbVemjgnMgWy98UbscgRM9KECE3JUC5f2pAZyyitQrS3uqyNnu8GpJ2WyJiHDZA/exec';
 		  // optional ready flag
 		  iframe.addEventListener('load', function () {
 			iframe.dataset.ready = '1';
@@ -2244,7 +2244,7 @@ function attachToLeft(leftEl) {
 					persistent.style.height = '100%';
 					persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 					// load base map once (no site param) — created only once
-					persistent.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
+					persistent.src = 'https://script.google.com/macros/s/AKfycbzRqvHkbVemjgnMgWy98UbscgRM9KECE3JUC5f2pAZyyitQrS3uqyNnu8GpJ2WyJiHDZA/exec';
 					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
 					(document.body || document.documentElement).appendChild(persistent);
 				  }
