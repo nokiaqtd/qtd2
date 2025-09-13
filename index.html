@@ -934,7 +934,7 @@
 		  iframe.style.height = '100%';
 		  iframe.style.border = '0';
 		  // load base map once (do not change src later)
-		  iframe.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
+		  iframe.src = 'https://script.google.com/macros/s/AKfycby27Xd0Sl676yH4U8QKbFQmztK019jwNqP9e2rIdfpupm2PTUiyoVzkhrl-qPHWriwqlw/exec';
 		  // optional ready flag
 		  iframe.addEventListener('load', function () {
 			iframe.dataset.ready = '1';
@@ -957,7 +957,7 @@
 			  holder.style.display = 'block';
 			  try {
 				if (iframe.contentWindow && typeof iframe.contentWindow.postMessage === 'function') {
-				  iframe.contentWindow.postMessage({ type: 'setSite', siteid: siteid }, '*');
+				  window.__qtdPersistentMap.postToMap({ type: 'setSite', siteid: rawSiteid });
 				  iframe.dataset.lastSite = siteid || '';
 				}
 			  } catch (e) { console.warn('postMessage failed', e); }
@@ -966,6 +966,95 @@
 			  holder.style.display = 'none';
 			}
 		  };
+		  
+// PASTE INTO index4.html (parent) near where __qtdPersistentMap is created (after holder.appendChild(iframe);)
+// -------------------------------------------------------------------------
+(function setupPersistentMapMessaging() {
+  const iframe = document.getElementById('persistentMapFrame');
+  if (!iframe) return;
+
+  // queue for messages until iframe ack
+  window.__qtdPersistentMap.postQueue = [];
+  window.__qtdPersistentMap.awaitingAck = false;
+
+  // send message with simple retry & queue
+  window.__qtdPersistentMap.postToMap = function(msg) {
+    const payload = typeof msg === 'string' ? { type: 'setSite', siteid: msg } : msg;
+    // push to queue
+    window.__qtdPersistentMap.postQueue.push({ payload, attempts: 0, ts: Date.now() });
+    processQueue();
+  };
+
+  function processQueue() {
+    if (!window.__qtdPersistentMap || window.__qtdPersistentMap.postQueue.length === 0) return;
+    if (window.__qtdPersistentMap.awaitingAck) return; // wait for ack before next
+
+    const item = window.__qtdPersistentMap.postQueue[0];
+    // give up after N tries
+    if (item.attempts >= 6) {
+      console.warn('persistentMap: giving up on', item.payload);
+      window.__qtdPersistentMap.postQueue.shift();
+      processQueue();
+      return;
+    }
+    item.attempts++;
+
+    try {
+      // prefer exact origin in production; use '*' for local debug
+      const targetOrigin = '*';
+      if (iframe.contentWindow && typeof iframe.contentWindow.postMessage === 'function') {
+        console.debug('persistentMap: posting', item.payload, 'attempt', item.attempts);
+        iframe.contentWindow.postMessage(item.payload, targetOrigin);
+        // set awaiting ack; ack will clear and pop queue
+        window.__qtdPersistentMap.awaitingAck = true;
+        // fallback time: if no ack in 1.2s, allow retry
+        setTimeout(() => {
+          window.__qtdPersistentMap.awaitingAck = false;
+          // if not acked, try again
+          processQueue();
+        }, 1200);
+      } else {
+        console.warn('persistentMap: no contentWindow yet, will retry', item);
+        // retry later
+        setTimeout(processQueue, 300);
+      }
+    } catch (err) {
+      console.error('persistentMap: post error', err);
+      setTimeout(processQueue, 500);
+    }
+  }
+
+  // Listen for ack messages from iframe
+  window.addEventListener('message', function(ev) {
+    try {
+      const d = ev.data || {};
+      if (!d || typeof d !== 'object') return;
+      if (d.type === 'setSiteResult') {
+        console.debug('persistentMap: got setSiteResult', d);
+        // pop queue if matches
+        if (window.__qtdPersistentMap.postQueue.length > 0 && window.__qtdPersistentMap.postQueue[0].payload.siteid === d.siteid) {
+          window.__qtdPersistentMap.postQueue.shift();
+        }
+        window.__qtdPersistentMap.awaitingAck = false;
+        // allow next queued message to be processed
+        setTimeout(processQueue, 10);
+      } else {
+        // other debug messages
+        console.debug('parent: message', d, 'origin', ev.origin);
+      }
+    } catch (e) {
+      console.error('parent message handler error', e);
+    }
+  }, false);
+
+  // convenience: expose for console tests
+  window.__qtdPersistentMap.debugPost = function(siteid) {
+    console.info('debugPost->', siteid);
+    window.__qtdPersistentMap.postToMap({ type: 'setSite', siteid: siteid });
+  };
+})();
+
+		  
 		})();
 
 
@@ -2194,40 +2283,10 @@ if (trimmed === 'ok') {
 				if (!overlay) return;
 				// only skip if we've wrapped and the wrapper element is still present.
 				// if the wrapper was removed (innerHTML replaced) we must re-run the wrapping.
-
-
-if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
-  try {
-    // try to find the existing left pane in the wrapped gallery
-    var existingLeft = overlay.querySelector('.gallery-left') || overlay.querySelector('.gallery-split .gallery-left');
-    // Preferred API: reposition persistent holder & ask it to show the requested site
-    if (existingLeft && window.__qtdPersistentMap && typeof window.__qtdPersistentMap.showAtRect === 'function') {
-      // reuse startMapAutoFit so size/position are computed consistently
-      try { startMapAutoFit(existingLeft, rawSiteid); } catch (e) {
-        // fallback to direct postMessage if startMapAutoFit fails
-        var pframe = document.getElementById('persistentMapFrame');
-        if (pframe && pframe.contentWindow && typeof pframe.contentWindow.postMessage === 'function') {
-          pframe.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
-          pframe.dataset.lastSite = rawSiteid || '';
-        }
-      }
-    } else {
-      // final fallback: postMessage directly to the persistent iframe if present
-      var pf = document.getElementById('persistentMapFrame');
-      if (pf && pf.contentWindow && typeof pf.contentWindow.postMessage === 'function') {
-        pf.contentWindow.postMessage({ type: 'setSite', siteid: rawSiteid }, '*');
-        pf.dataset.lastSite = rawSiteid || '';
-      }
-    }
-  } catch (err) {
-    console.warn('wrapGalleryWithMap: update-on-already-wrapped failed', err);
-  }
-  // still return because the DOM is already wrapped
-  return;
-}
-
-				  
-				  // helper: find descendant (prefer direct children first)
+				if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
+				  return; // already wrapped and wrapper still in DOM
+				}
+				// helper: find descendant (prefer direct children first)
 				function findDescendant(parent, selector) {
 				  // prefer direct children
 				  for (var i = 0; i < parent.children.length; i++) {
@@ -2291,7 +2350,7 @@ if (overlay.__mapWrapped && overlay.querySelector('.gallery-split')) {
 					persistent.style.height = '100%';
 					persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 					// load base map once (no site param) — created only once
-					persistent.src = 'https://script.google.com/macros/s/AKfycbzPn0YAnTvkHgYDJrHJ7LoN8TTFqP1uiVTUc33ejld8S92-NDBoQsK6f_mASX0LGb0Trw/exec';
+					persistent.src = 'https://script.google.com/macros/s/AKfycby27Xd0Sl676yH4U8QKbFQmztK019jwNqP9e2rIdfpupm2PTUiyoVzkhrl-qPHWriwqlw/exec';
 					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
 					(document.body || document.documentElement).appendChild(persistent);
 				  }
@@ -3059,69 +3118,6 @@ try {
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
-// add this inside the iframe page JS (ES5). Put it after searchSite() is defined.
-(function () {
-  // optional: restrict allowed origin(s) for security — replace with your parent origin if known
-  var ALLOWED_ORIGINS = null; // e.g. ['https://your-parent-domain.com'];
-
-  function originAllowed(origin) {
-    if (!ALLOWED_ORIGINS || !ALLOWED_ORIGINS.length) return true;
-    try {
-      for (var i = 0; i < ALLOWED_ORIGINS.length; i++) {
-        if (ALLOWED_ORIGINS[i] === origin) return true;
-      }
-    } catch (e) {}
-    return false;
-  }
-
-  window.addEventListener('message', function (ev) {
-    try {
-      if (!originAllowed(ev.origin)) {
-        // ignore messages from unexpected origins
-        return;
-      }
-      var data = ev.data;
-      // handle both object and JSON-string payloads
-      if (typeof data === 'string') {
-        try { data = JSON.parse(data); } catch (e) { /* leave as string */ }
-      }
-      if (!data) return;
-      // accept { type: 'setSite', siteid: '20SAG0123' } payload
-      if ((data.type === 'setSite' || data.type === 'set_site') && data.siteid) {
-        var sid = String(data.siteid).trim().toUpperCase();
-        var inp = document.getElementById('searchInput');
-        if (inp) {
-          inp.value = sid;
-          // try calling searchSite() if defined, else click the Search button (fallback)
-          if (typeof window.searchSite === 'function') {
-            try { window.searchSite(); } catch (e) { console.warn('searchSite call failed', e); }
-          } else {
-            var btn = document.querySelector('.search-button') || document.querySelector('button[onclick*="searchSite"]');
-            if (btn) try { btn.click(); } catch (e) { console.warn('searchBtn click failed', e); }
-          }
-        }
-      }
-      // also accept simple payload { siteid: 'XYZ' } for convenience
-      else if (data.siteid) {
-        var sid2 = String(data.siteid).trim().toUpperCase();
-        var inp2 = document.getElementById('searchInput');
-        if (inp2) {
-          inp2.value = sid2;
-          if (typeof window.searchSite === 'function') {
-            try { window.searchSite(); } catch (e) { console.warn('searchSite call failed', e); }
-          } else {
-            var btn2 = document.querySelector('.search-button') || document.querySelector('button[onclick*="searchSite"]');
-            if (btn2) try { btn2.click(); } catch (e) { console.warn('searchBtn click failed', e); }
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('iframe message handler error', err);
-    }
-  }, false);
-})();
-		
-		
         var siteidValue = getParameterByName('siteid');
         console.log('Value of "siteid" query parameter:', siteidValue);
         if (siteidValue) {
