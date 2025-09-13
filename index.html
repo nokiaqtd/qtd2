@@ -1888,8 +1888,7 @@ function attachToLeft(leftEl) {
 					}					
 			    }
 			
-
-// REPLACE showToastAndClose(...) with this ES5 function
+// replace existing showToastAndClose(...) with this showToast(...)
 function showToast(message, success, closeImmediately) {
   var toast = document.getElementById('qtd-toast');
   if (!toast) {
@@ -1905,57 +1904,51 @@ function showToast(message, success, closeImmediately) {
   toast.classList.remove('qtd-success','qtd-error','qtd-show','qtd-hide');
   toast.classList.add(success ? 'qtd-success' : 'qtd-error');
 
-  // ensure previous timer cleared
+  // clear previous timer/flags
   if (toast._qtdTimer) { clearTimeout(toast._qtdTimer); toast._qtdTimer = null; }
-  // clear any previous skip flag
   toast._qtdSkipCloseOnAnimEnd = false;
 
-  // force reflow then show
+  // show
   void toast.offsetWidth;
   toast.classList.add('qtd-show');
 
-  // if caller wants immediate close, trigger it now (short delay to let UI settle)
+  // if caller asks to close immediately, do it now (short delay)
   if (closeImmediately) {
-    try {
-      // mark so onAnimEnd does not re-trigger close
-      toast._qtdSkipCloseOnAnimEnd = true;
-      setTimeout(function () {
-        var closeBtn = document.querySelector('.closebtn');
-        if (closeBtn) {
-          try { closeBtn.click(); } catch (e) { if (typeof closeNav === 'function') closeNav(); }
-        } else {
-          if (typeof closeNav === 'function') closeNav();
-        }
-      }, 40);
-    } catch (e) { /* ignore */ }
+    toast._qtdSkipCloseOnAnimEnd = true;
+    setTimeout(function () {
+      var closeBtn = document.querySelector('.closebtn');
+      if (closeBtn) {
+        try { closeBtn.click(); } catch (e) { if (typeof closeNav === 'function') closeNav(); }
+      } else {
+        if (typeof closeNav === 'function') closeNav();
+      }
+    }, 40);
   }
 
-  // after visible time, start hide animation and remove toast on animation-end
+  // hide after same visible duration (3s) and remove DOM node on animation end
   var visibleMs = 3000;
   toast._qtdTimer = setTimeout(function () {
-    try {
-      toast.classList.remove('qtd-show');
-      toast.classList.add('qtd-hide');
-    } catch (e) {}
+    try { toast.classList.remove('qtd-show'); toast.classList.add('qtd-hide'); } catch (e) {}
     function onAnimEnd(ev) {
       if (ev && ev.target !== toast) return;
       toast.removeEventListener('animationend', onAnimEnd);
       try { toast.parentNode && toast.parentNode.removeChild(toast); } catch (e) {}
-      // trigger close only if NOT already closed by immediate-close path
-      try {
-        if (!toast._qtdSkipCloseOnAnimEnd) {
+      // trigger close only if immediate-close path didn't already do it
+      if (!toast._qtdSkipCloseOnAnimEnd) {
+        try {
           var closeBtn2 = document.querySelector('.closebtn');
           if (closeBtn2) {
-            setTimeout(function(){ try { closeBtn2.click(); } catch(e){ if (typeof closeNav === 'function') closeNav(); } }, 40);
+            setTimeout(function () { try { closeBtn2.click(); } catch (e) { if (typeof closeNav === 'function') closeNav(); } }, 40);
           } else {
             if (typeof closeNav === 'function') setTimeout(closeNav, 40);
           }
-        }
-      } catch (err) { console.warn('Toast: could not trigger closebtn', err); }
+        } catch (err) { console.warn('Toast: could not trigger closebtn', err); }
+      }
     }
     toast.addEventListener('animationend', onAnimEnd);
   }, visibleMs);
 }
+
 
 
 
@@ -2036,14 +2029,15 @@ function showToast(message, success, closeImmediately) {
 						// decide success vs failure
 						const trimmed = (rtext || '').toString().trim();
 if (trimmed === 'ok') {
-  // success: show toast AND close immediately (do not wait for toast hide)
+  // success: show toast AND close immediately
   showToast('Update successful', true, true);
 } else if (trimmed.toLowerCase().startsWith('error:')) {
-  // failure: show error toast and DO NOT close; let user retry
+  // failure: show toast and DO NOT close (let user retry)
   showToast('Update failed: ' + rtext, false, false);
 } else {
   showToast('Update response: ' + rtext, false, false);
 }
+
 
 
 		
