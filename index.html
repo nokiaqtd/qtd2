@@ -677,6 +677,23 @@
   transform: translateX(0);
 }
 
+/* Layout so images center and never stretch */
+.gallery-right, .gallery-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;      /* hide overflow if image smaller */
+}
+
+/* Keep images proportional — never distort */
+.gallery-right img, .gallery-left img {
+  max-width: 100%;
+  max-height: 100vh;     /* prevent vertical overflow */
+  width: auto;
+  height: auto;
+  object-fit: contain;   /* safe fallback in modern browsers */
+  display: block;
+}
 		
 			
 	</style>
@@ -2056,6 +2073,35 @@ function attachToLeft(leftEl) {
 
 			
 			function wrapGalleryWithMap(rawSiteid, containerSelector) {
+
+// If the gallery uses <img> elements inside the right pane, ensure they keep natural ratio during resize.
+(function ensureGalleryImageBehavior() {
+  try {
+    var img = right.querySelector('img');
+    if (!img) return; // nothing to do
+
+    // enforce CSS fallback from JS, and store aspect ratio if needed
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100vh';
+    img.style.width = 'auto';
+    img.style.height = 'auto';
+    img.style.objectFit = 'contain';
+
+    // optional: store ratio (useful if you want to enforce exact container height based on ratio)
+    if (img.complete && img.naturalWidth && img.naturalHeight) {
+      img.dataset.aspectRatio = (img.naturalWidth / img.naturalHeight).toString();
+    } else {
+      img.addEventListener('load', function () {
+        if (img.naturalWidth && img.naturalHeight) {
+          img.dataset.aspectRatio = (img.naturalWidth / img.naturalHeight).toString();
+        }
+      }, { once: true });
+    }
+  } catch (e) {
+    console && console.warn && console.warn('ensureGalleryImageBehavior error', e);
+  }
+})();
+
 				
 			  containerSelector = containerSelector || '.overlay-content';
 			  try {
@@ -2395,6 +2441,13 @@ try {
   var g = document.getElementById('galleryGutter'); if (g && g.parentNode) g.parentNode.removeChild(g);
   var dc = document.getElementById('galleryDragCapture'); if (dc && dc.parentNode) dc.parentNode.removeChild(dc);
 } catch (e) {}
+
+// also remove old galleryResizer if any
+try {
+  var r = document.getElementById('galleryResizer');
+  if (r && r.parentNode) r.parentNode.removeChild(r);
+} catch (e) {}
+	  
 	}
 
   try {
