@@ -934,7 +934,7 @@
 		  iframe.style.height = '100%';
 		  iframe.style.border = '0';
 		  // load base map once (do not change src later)
-		  iframe.src = 'https://script.google.com/macros/s/AKfycbzAMsU2rlJjj9raaVpVqDL0yXc4rtH3xWBNl_cHvdw3h89dtCiyiK6tUaDyxn1E0xZfdA/exec';
+		  iframe.src = 'https://script.google.com/macros/s/AKfycbxZFsSZPCXuWICnJK22lhgToGNhI819QRMt--6vb8mLsRUtLa3uoNP7BmZ7cLJtdGduEA/exec';
 		  // optional ready flag
 		  iframe.addEventListener('load', function () {
 			iframe.dataset.ready = '1';
@@ -2350,7 +2350,7 @@ if (trimmed === 'ok') {
 					persistent.style.height = '100%';
 					persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
 					// load base map once (no site param) — created only once
-					persistent.src = 'https://script.google.com/macros/s/AKfycbzAMsU2rlJjj9raaVpVqDL0yXc4rtH3xWBNl_cHvdw3h89dtCiyiK6tUaDyxn1E0xZfdA/exec';
+					persistent.src = 'https://script.google.com/macros/s/AKfycbxZFsSZPCXuWICnJK22lhgToGNhI819QRMt--6vb8mLsRUtLa3uoNP7BmZ7cLJtdGduEA/exec';
 					persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
 					(document.body || document.documentElement).appendChild(persistent);
 				  }
@@ -3355,6 +3355,21 @@ try {
 	  });
 	})();	
 
+function postToIframe(payload) {
+  const iframe = document.getElementById('persistentMapFrame');
+  if (!iframe || !iframe.contentWindow) {
+    console.warn('postToIframe: iframe not ready', iframe);
+    return;
+  }
+  let targetOrigin = '*';
+  try {
+    targetOrigin = new URL(iframe.src).origin; // this should be the iframe origin (script.googleusercontent.com)
+  } catch (e) {
+    console.warn('postToIframe: cannot parse iframe.src, using "*"', e);
+  }
+  console.debug('parent -> POST to iframe targetOrigin=', targetOrigin, 'payload=', payload);
+  iframe.contentWindow.postMessage(payload, targetOrigin);
+}
 
 		
     </script>
