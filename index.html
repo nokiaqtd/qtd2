@@ -3029,6 +3029,69 @@ try {
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
+// add this inside the iframe page JS (ES5). Put it after searchSite() is defined.
+(function () {
+  // optional: restrict allowed origin(s) for security — replace with your parent origin if known
+  var ALLOWED_ORIGINS = null; // e.g. ['https://your-parent-domain.com'];
+
+  function originAllowed(origin) {
+    if (!ALLOWED_ORIGINS || !ALLOWED_ORIGINS.length) return true;
+    try {
+      for (var i = 0; i < ALLOWED_ORIGINS.length; i++) {
+        if (ALLOWED_ORIGINS[i] === origin) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  window.addEventListener('message', function (ev) {
+    try {
+      if (!originAllowed(ev.origin)) {
+        // ignore messages from unexpected origins
+        return;
+      }
+      var data = ev.data;
+      // handle both object and JSON-string payloads
+      if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch (e) { /* leave as string */ }
+      }
+      if (!data) return;
+      // accept { type: 'setSite', siteid: '20SAG0123' } payload
+      if ((data.type === 'setSite' || data.type === 'set_site') && data.siteid) {
+        var sid = String(data.siteid).trim().toUpperCase();
+        var inp = document.getElementById('searchInput');
+        if (inp) {
+          inp.value = sid;
+          // try calling searchSite() if defined, else click the Search button (fallback)
+          if (typeof window.searchSite === 'function') {
+            try { window.searchSite(); } catch (e) { console.warn('searchSite call failed', e); }
+          } else {
+            var btn = document.querySelector('.search-button') || document.querySelector('button[onclick*="searchSite"]');
+            if (btn) try { btn.click(); } catch (e) { console.warn('searchBtn click failed', e); }
+          }
+        }
+      }
+      // also accept simple payload { siteid: 'XYZ' } for convenience
+      else if (data.siteid) {
+        var sid2 = String(data.siteid).trim().toUpperCase();
+        var inp2 = document.getElementById('searchInput');
+        if (inp2) {
+          inp2.value = sid2;
+          if (typeof window.searchSite === 'function') {
+            try { window.searchSite(); } catch (e) { console.warn('searchSite call failed', e); }
+          } else {
+            var btn2 = document.querySelector('.search-button') || document.querySelector('button[onclick*="searchSite"]');
+            if (btn2) try { btn2.click(); } catch (e) { console.warn('searchBtn click failed', e); }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('iframe message handler error', err);
+    }
+  }, false);
+})();
+		
+		
         var siteidValue = getParameterByName('siteid');
         console.log('Value of "siteid" query parameter:', siteidValue);
         if (siteidValue) {
