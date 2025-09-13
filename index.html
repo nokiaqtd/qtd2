@@ -1906,7 +1906,9 @@ function showToast(message, success, closeImmediately) {
 
   // clear previous timer/flags
   if (toast._qtdTimer) { clearTimeout(toast._qtdTimer); toast._qtdTimer = null; }
-  toast._qtdSkipCloseOnAnimEnd = false;
+  // default: do NOT auto-close overlay when toast hides.
+  // only code paths that explicitly call close (closeImmediately) will close the overlay.
+  toast._qtdSkipCloseOnAnimEnd = true;
 
   // show
   void toast.offsetWidth;
