@@ -2427,7 +2427,9 @@ if (az === 360) {
   // ensure left/right are defined in this scope
   const left  = getAzimuthEnd(site.lat, site.lon, az - sectorHalfAngle, range);
   const right = getAzimuthEnd(site.lat, site.lon, az + sectorHalfAngle, range);
-
+	
+	
+	
   // outer white outline
   const polyOuter = L.polygon([[site.lat, site.lon], left, right], {
     color: outerOutlineColor,
@@ -2450,7 +2452,7 @@ if (az === 360) {
   const polyFill = L.polygon([[site.lat, site.lon], left, right], {
     color: color,
     fillColor: color,
-    fillOpacity: theme4? 0 : 1,
+    fillOpacity: theme4? 0.5 : 1,
     weight: 0
   });
   sectorLayer.addLayer(polyFill);
