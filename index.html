@@ -29,7 +29,6 @@
   <script>
     // This line declares a variable called "url" and assigns it a value of "Api_Endpoint_Url"
     let url = "https://script.google.com/macros/s/AKfycbx9XIxZUWkN85duC7IB-2HnX3khkbQ-1H1_y0x-GHKDBC6sQUPI85sdm43967IzeDlJ/exec";
-	
 
 
     let lastqtdaz = url;
@@ -421,7 +420,7 @@
 
     .row {
       display: grid;
-      grid-template-columns: repeat(16, 1fr);
+      grid-template-columns: repeat(18, 1fr);
       /* always reserve 16 slots per row */
       gap: 10px;
       justify-items: start;
@@ -1105,7 +1104,8 @@
       iframe.style.height = '100%';
       iframe.style.border = '0';
       // load base map once (do not change src later)
-      iframe.src = './btsmapsplit.html';
+      //iframe.src = './btsmapsplit.html';
+		iframe.src = 'https://script.google.com/macros/s/AKfycbyD0Db5nO0Ey3kTKRtjQTlo2d0n6B1Deyk2uda3CDe5zgqAgRpZaB-nngAb9fYtD4mA_w/exec';
       // optional ready flag
       iframe.addEventListener('load', function () {
         iframe.dataset.ready = '1';
@@ -2458,7 +2458,8 @@
               persistent.style.height = '100%';
               persistent.allow = 'clipboard-write; clipboard-read; geolocation; microphone; camera; accelerometer; gyroscope; autoplay';
               // load base map once (no site param) — created only once
-              persistent.src = './btsmapsplit.html';
+              //persistent.src = './btsmapsplit.html';
+				persistent.src = 'https://script.google.com/macros/s/AKfycbyD0Db5nO0Ey3kTKRtjQTlo2d0n6B1Deyk2uda3CDe5zgqAgRpZaB-nngAb9fYtD4mA_w/exec';
               persistent.addEventListener('load', function () { persistent.dataset.ready = '1'; }, { once: true });
               (document.body || document.documentElement).appendChild(persistent);
             }
