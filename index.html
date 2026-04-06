@@ -3127,7 +3127,7 @@
             })
               .then(r => r.text())
               .then(data => {
-
+				console.log('data =', data);
                 if (data.includes("uploaded")) {
                   successcount = successcount + 1;
                   //console.log('uploadcount=' + uploadcount);
