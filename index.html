@@ -3127,14 +3127,14 @@
             })
               .then(r => r.text())
               .then(data => {
-				console.log('data =', data);
-                if (data.includes("uploaded")) {
+				//console.log('data =', data);
+                // if (data.includes("uploaded")) {
                   successcount = successcount + 1;
                   //console.log('uploadcount=' + uploadcount);
-                }
-                else {
-                  failcount = failcount + 1;
-                }
+                // }
+                // else {
+                //   failcount = failcount + 1;
+                // }
 
                 let status = data.includes("uploaded") ? "" : '\n' + file.path;
                 sfail += `${status}`;
